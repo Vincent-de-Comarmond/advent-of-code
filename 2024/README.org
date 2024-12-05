@@ -1,0 +1,4 @@
+* VINCENT DE COMARMOND'S ADVENT OF CODE
+
++ Please find my [[https://github.com/Vincent-de-Comarmond/advent-of-code][advent-of-code]] repo [[https://github.com/Vincent-de-Comarmond/advent-of-code][here]].
++ Following a change of heart (maybe it's easier for the people who give prizes), I'll add my solutions to both my private repo and here.
