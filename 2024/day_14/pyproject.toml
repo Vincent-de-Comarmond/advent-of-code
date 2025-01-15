@@ -1,0 +1,13 @@
+[project]
+name = "day-14"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12.4"
+dependencies = [
+    "black>=24.10.0",
+    "flake8>=7.1.1",
+    "numpy>=2.2.0",
+    "opencv-python>=4.10.0.84",
+    "pylint>=3.3.2",
+]

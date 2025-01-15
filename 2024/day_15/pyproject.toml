@@ -1,0 +1,13 @@
+[project]
+name = "day-15"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12.4"
+dependencies = [
+    "black>=24.10.0",
+    "flake8>=7.1.1",
+    "ipython>=8.30.0",
+    "jedi>=0.19.2",
+    "numpy>=2.2.0",
+    "pylint>=3.3.2",
+]
