@@ -5,7 +5,9 @@ from IPython import embed
 
 txt_matrix = []
 dst_matrix = []
-with open("./input.txt", "r") as txtin:
+# with open("./input.txt", "r") as txtin:
+
+with open("/home/vincentdc/Random/synthesis_aoc_2023/vincent-de-comarmond/day_10/input.txt", "r") as txtin:
     for ln in txtin:
         array = ["."] + [_ for _ in ln.strip()] + ["."]
         txt_matrix.append(array)
@@ -61,8 +63,8 @@ prev_pt, curr_pt = (si, sj), (si, sj)
 traversed = []
 
 while True:
-    char = txt_matrix[*curr_pt]
-    dst_matrix[*curr_pt] = distance
+    char = txt_matrix[curr_pt]
+    dst_matrix[curr_pt] = distance
     # print(char, curr_pt)
     traversed.append(curr_pt)
 
@@ -72,7 +74,7 @@ while True:
         i, j = curr_pt
         n, e, s, w = (i - 1, j), (i, j + 1), (i + 1, j), (i, j - 1)
         for _dir in (n, e, s, w):
-            adjacent = txt_matrix[*_dir]
+            adjacent = txt_matrix[_dir]
             if _dir == n and adjacent in ("|", "7", "F"):
                 curr_pt = n
                 break
@@ -107,9 +109,9 @@ paintme = np.zeros(dst_matrix.shape)
 
 for idx in range(1, len(traversed)):
     curr = traversed[idx]
-    curr_char = txt_matrix[*curr]
+    curr_char = txt_matrix[curr]
     prev = traversed[idx - 1]
-    prev_char = txt_matrix[*prev]
+    prev_char = txt_matrix[prev]
     diff = tuple(curr[i] - prev[i] for i in (0, 1))
 
     paint_left = set()
@@ -175,15 +177,17 @@ for idx in range(1, len(traversed)):
             paint_left.add(t_add(prev, (-1, 0)))
 
     for _tup in paint_left:
-        paintme[*_tup] = -1
+        paintme[_tup] = -1
     for _tup in paint_right:
-        paintme[*_tup] = 1
+        paintme[_tup] = 1
 
 paintme[dst_matrix != -1] = 0
 
 left_start = {_ for _ in zip(*np.where(paintme == -1))}
 right_start = {_ for _ in zip(*np.where(paintme == 1))}
 
+print(f"Left starts: {len(left_start)}")
+print(f"Right starts: {len(right_start)}")
 
 for idx, active_edge in enumerate((left_start, right_start)):
 
@@ -197,8 +201,8 @@ for idx, active_edge in enumerate((left_start, right_start)):
                 continue
             burnt.add(pt)
 
-            if dst_matrix[*pt] == -1:
-                paintme[*pt] = fill
+            if dst_matrix[pt] == -1:
+                paintme[pt] = fill
             else:
                 continue
 

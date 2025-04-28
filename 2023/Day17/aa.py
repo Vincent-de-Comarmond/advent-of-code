@@ -3,7 +3,7 @@ from pprint import pprint
 import numpy as np
 
 
-TEST = False
+TEST = True
 
 if TEST:
     raw = [
@@ -47,12 +47,12 @@ for i in range(DATA.shape[1]):
     newpoint = t_add(point0, (0, 1))
     if newpoint[1] >= 0 and newpoint[1] < DATA.shape[1]:
         point0 = newpoint
-        path_0["energy"] += DATA[*point0]
+        path_0["energy"] += DATA[point0]
 
     newpoint = t_add(point0, (1, 0))
     if newpoint[0] >= 0 and newpoint[0] < DATA.shape[0]:
         point0 = newpoint
-        path_0["energy"] += DATA[*point0]
+        path_0["energy"] += DATA[point0]
 print(point0)
 
 
@@ -76,7 +76,7 @@ while len(active) > 0:
         ni, nj = new_point
         if ni < 0 or nj < 0 or ni > NR - 1 or nj > NC - 1:
             continue
-        new_energy = energy + DATA[*new_point]
+        new_energy = energy + DATA[new_point]
         if new_energy > path_0["energy"]:
             continue
 
@@ -111,10 +111,10 @@ while len(active) > 0:
 reversed_map = DATA.astype(str)
 # translator = str.maketrans({"n": "s", "s": "n", "w": "e", "e": "w"})
 pt = (NR - 1, NC - 1)
-reversed_map[*pt] = "."
+reversed_map[pt] = "."
 for _d in reversed(burnt[pt]["journey"]):
     pt = t_minus(pt, directions[_d])
-    reversed_map[*pt] = "."
+    reversed_map[pt] = "."
 
 print(reversed_map)
 

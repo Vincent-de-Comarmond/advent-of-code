@@ -2,7 +2,7 @@ import pdb
 import numpy as np
 
 
-TEST = False
+TEST = True
 
 if TEST:
     raw = [
@@ -56,7 +56,7 @@ while len(active) > 0:
         ni, nj = new_point
         if ni < 0 or nj < 0 or ni > NR - 1 or nj > NC - 1:
             continue
-        new_energy = energy + DATA[*new_point]
+        new_energy = energy + DATA[new_point]
 
         if new_point not in burnt:
             burnt[new_point] = {"energy": new_energy, "journey": journey}
@@ -91,10 +91,10 @@ while len(active) > 0:
 reversed_map = DATA.astype(str)
 # translator = str.maketrans({"n": "s", "s": "n", "w": "e", "e": "w"})
 pt = (NR - 1, NC - 1)
-reversed_map[*pt] = "."
+reversed_map[pt] = "."
 for _d in reversed(burnt[pt]["journey"]):
     pt = t_minus(pt, directions[_d])
-    reversed_map[*pt] = "."
+    reversed_map[pt] = "."
 
 print(reversed_map)
 

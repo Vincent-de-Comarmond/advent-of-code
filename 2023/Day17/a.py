@@ -71,7 +71,7 @@ while len(active) != 0:
 
             if direction != new_direction:
                 new_edge.add(
-                    (new_point, new_direction, energy_loss + int(DATA[*new_point]), 1)
+                    (new_point, new_direction, energy_loss + int(DATA[new_point]), 1)
                 )
             else:
                 # We can't continue in the same direction more than 3 steps
@@ -81,7 +81,7 @@ while len(active) != 0:
                     (
                         new_point,
                         new_direction,
-                        energy_loss + int(DATA[*new_point]),
+                        energy_loss + int(DATA[new_point]),
                         steps + 1,
                     )
                 )
@@ -90,7 +90,7 @@ while len(active) != 0:
 
 test = np.full(DATA.shape, -1)
 for k, v in burnt.items():
-    test[*k] = v
+    test[k] = v
 print(test)
 
 
@@ -117,5 +117,5 @@ def reverse_map(test_array: np.ndarray):
 traversed = reverse_map(test)
 reverse_journey = DATA.astype(str)
 for pt in traversed:
-    reverse_journey[*pt] = "·"
+    reverse_journey[pt] = "·"
 print(reverse_journey)
