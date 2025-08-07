@@ -1,4 +1,4 @@
-all: day01
+all: day01 day02 day03
 
 day01: 
 	gcc 01/a.c -o ./bin/01a
@@ -13,3 +13,10 @@ day02:
 
 	gcc 02/b.c -o ./bin/02b
 	./bin/02b 02/input.txt
+
+day03:
+	gcc 03/a.c -o ./bin/03a
+	./bin/03a 03/input.txt
+
+	gcc 03/b.c -o ./bin/03b
+	./bin/03b 03/input.txt
