@@ -20,3 +20,14 @@ day03:
 
 	gcc 03/b.c -o ./bin/03b
 	./bin/03b 03/input.txt
+
+day04:
+	gcc 04/a.c -lssl -lcrypto -o ./bin/04a
+	./bin/04a abcdef
+	./bin/04a pqrstuv
+	./bin/04a iwrupvqb
+
+	gcc 04/b.c -lssl -lcrypto -o ./bin/04b
+	./bin/04b abcdef
+	./bin/04b pqrstuv
+	./bin/04b iwrupvqb
