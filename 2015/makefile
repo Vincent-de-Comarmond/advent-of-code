@@ -1,4 +1,4 @@
-all: day01 day02 day03
+all: day01 day02 day03 day04 day05
 
 day01: 
 	gcc 01/a.c -o ./bin/01a
@@ -23,11 +23,18 @@ day03:
 
 day04:
 	gcc 04/a.c -lssl -lcrypto -o ./bin/04a
-	./bin/04a abcdef
-	./bin/04a pqrstuv
 	./bin/04a iwrupvqb
 
 	gcc 04/b.c -lssl -lcrypto -o ./bin/04b
-	./bin/04b abcdef
-	./bin/04b pqrstuv
 	./bin/04b iwrupvqb
+
+day05:
+	gcc 05/a.c -o ./bin/05a
+	./bin/05a ./05/input.txt
+
+	gcc 05/b.c -o ./bin/05b
+	./bin/05b ./05/input.txt
+
+day06:
+	gcc 06/a.c -o ./bin/06a
+	./bin/06a ./06/input.txt
