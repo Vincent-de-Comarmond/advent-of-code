@@ -1,0 +1,48 @@
+
+#+begin_src C
+  #include <stdio.h>
+  #include <stdlib.h>
+
+int cheap_hash(char *input_string) {
+  int idx = 0, total = 0, multiplier = 1;
+
+  while (input_string[idx] != '\0') {
+    total += ((int)input_string[idx++] - 96) * multiplier;
+    multiplier *= 26;
+  }
+  return total;
+}
+
+char *unhash(int hashed) {
+  int idx = 0, letter_val = 0;
+  char *result = malloc(10 * sizeof(char));
+
+  if (!result)
+    return NULL;
+
+  while (hashed > 0) {
+    letter_val = hashed % 26;
+    letter_val = letter_val == 0 ? 26 : letter_val;
+    result[idx++] = (char)(letter_val + 96);
+    hashed = (hashed - letter_val) / 26;
+    if (hashed == 0)
+      break;
+  }
+  result[idx] = '\0';
+  return result;
+}
+
+  int main() {
+    char* input_string = "zz";
+    int test = cheap_hash(input_string);
+    printf("%s\n", input_string);
+    printf("%d\n", test);
+    printf("%s\n", unhash(test));
+  }
+
+#+end_src
+
+#+RESULTS:
+| abcd  |
+| 72385 |
+| abcd  |

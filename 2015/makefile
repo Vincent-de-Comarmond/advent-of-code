@@ -1,4 +1,4 @@
-all: day01 day02 day03 day04 day05 day06
+all: day01 day02 day03 day04 day05 day06 day07 day08 day09
 
 day01: 
 	gcc 01/a.c -o ./bin/01a
@@ -41,3 +41,25 @@ day06:
 
 	gcc 06/b.c -o ./bin/06b
 	./bin/06b ./06/input.txt
+
+day07:
+	gcc 07/a.c -Wall -o ./bin/07a
+	./bin/07a ./07/input.txt
+
+	gcc 07/b.c -Wall -o ./bin/07b
+	./bin/07b ./07/input.txt
+
+day08:
+	gcc 08/a.c -Wall -o ./bin/08a
+	./bin/08a ./08/input.txt
+
+	gcc 08/b.c -Wall -o ./bin/08b
+	./bin/08b ./08/input.txt
+
+day09:
+	gcc 09/a.c -Wall -o ./bin/09a
+	./bin/09a ./09/input.txt
+
+	gcc 09/b.c -Wall -o ./bin/09b
+	./bin/09b ./09/input.txt
+

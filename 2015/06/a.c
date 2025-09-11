@@ -48,7 +48,6 @@ void make_display_and_count(char *filename) {
   char line[buf_size];
 
   int r0, c0, r1, c1;
-  char *dimensions;
 
   while (fgets(line, buf_size, file)) {
     /* printf("%s", line); */
