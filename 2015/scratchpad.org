@@ -46,3 +46,21 @@ char *unhash(int hashed) {
 | abcd  |
 | 72385 |
 | abcd  |
+
+
+#+begin_src C
+
+#include <stdio.h>
+
+int main() {
+    int digit_int = 7;
+    char digit_char = digit_int + '0'; // Adds the ASCII value of '0'
+
+    printf("Character digit: %c\n", digit_char);
+    return 0;
+}
+#+end_src
+
+
+
+
