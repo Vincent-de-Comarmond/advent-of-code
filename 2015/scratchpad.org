@@ -49,7 +49,6 @@ char *unhash(int hashed) {
 
 
 #+begin_src C
-
 #include <stdio.h>
 
 int main() {
@@ -61,6 +60,21 @@ int main() {
 }
 #+end_src
 
+#+begin_src C
+  #include <stdio.h>
+
+  int main() {
+      char digit_char = 'i'; // Adds the ASCII value of '0'
+      int digit_int = 1+digit_char-'a';
+
+
+      printf("Digit int: %d\n", digit_int);
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: Digit int: 9
 
 
 

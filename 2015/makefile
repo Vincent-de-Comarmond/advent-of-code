@@ -67,3 +67,20 @@ day10:
 	gcc 10/a.c -Wall -o ./bin/10a
 	./bin/10a 3113322113 40
 	./bin/10a 3113322113 50
+
+day11:
+	gcc 11/a.c -Wall -o ./bin/11a
+	./bin/11a hepxcrrq 
+
+day12:
+	gcc 12/a.c -Wall -o ./bin/12a
+	./bin/12a ./12/input.txt
+
+	gcc 12/b.c -Wall -o ./bin/12b
+	./bin/12b ./12/input.txt
+day13:
+	gcc 13/a.c -Wall -o ./bin/13a
+	./bin/13a ./13/input.txt
+
+	gcc 13/b.c -Wall -o ./bin/13b
+	./bin/13b ./13/input.txt
