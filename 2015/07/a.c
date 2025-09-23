@@ -76,21 +76,7 @@ bool is_numeric(const char *str) {
   return true; // All characters are digits
 }
 
-void print_dump() {
-  int i = 0;
-  for (i = 0; i < 700; i++) {
-    char *unhashed = unhash(i);
-    if (set_elements[i]) {
-      int known_val = known_elements[i];
-      printf("%s (%d): %d\n", unhashed, i, known_val);
-    }
-    free(unhashed);
-  }
-}
-
 void solve_recursive(struct Equation *equation_buffer, int num_equations) {
-  /* print_dump(); */
-  printf("Number equations: %d\n", num_equations);
   int unknown_idx = 0, eq_idx = 0;
   struct Equation equations[400];
   int hashleft = 0, hashright = 0, hashoutput = 0;

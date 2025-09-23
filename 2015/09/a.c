@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
   end = clock();
 
   double elapsed_seconds = (double)(end - start) / CLOCKS_PER_SEC;
-  printf("Execution time: %f seconds\n\n\n", elapsed_seconds);
+  printf("Execution time: %f seconds\n", elapsed_seconds);
   return EXIT_SUCCESS;
 }
 

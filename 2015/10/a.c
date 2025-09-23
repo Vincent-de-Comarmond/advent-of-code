@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 
-void solve(char input_string[10000], char output_string[10000], int calls) {
+void solve(char input_string[5000000], char output_string[5000000], int calls) {
   char current = '\0', previous = '\0';
   int i = 0, current_num = 0, idx = 0;
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
   end = clock();
 
   double elapsed_seconds = (double)(end - start) / CLOCKS_PER_SEC;
-  printf("Execution time: %f seconds\n\n\n", elapsed_seconds);
+  printf("Execution time: %f seconds\n", elapsed_seconds);
   return EXIT_SUCCESS;
 }
 
