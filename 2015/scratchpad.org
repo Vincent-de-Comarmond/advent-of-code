@@ -78,3 +78,156 @@ int main() {
 
 
 
+#+begin_src C
+  #include <stdio.h>
+  #include <string.h>
+
+  int main() {
+      char name[100] = "";
+      int value=-1;
+
+      sscanf("Vincent: is 5", "%s: is %d", name, &value);
+      printf("%s: %d\n", name, value);
+      return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: Vincent:: -1
+
+
+
+#+begin_src C
+  #include <stdio.h>
+  long pow100(int num) {
+    long total = 1;
+    while (num-- > 0)
+      total *= 100;
+    return total;
+  }
+  printf("%ld\n", pow100(2));
+#+end_src
+
+#+RESULTS:
+: 10000
+
+
+
+
+#+begin_src C
+  #include <stdbool.h>
+  #include <stdio.h>
+
+  static int num_ingred = 3;
+  static int teaspoons = 10;
+  static int num_recipies = 0;
+  static int recipies[1000000][3];
+
+  void initialize(){
+    for (int i=0; i < 1000000; i++)
+      for (int j=0; j < num_ingred; j++)
+        recipies[i][j] = -1;
+  }
+
+
+  void make_recipies(int remaining_spoons, int num_ingred, int idx, int *props){
+      if (idx == num_ingred - 1) {
+          props[idx] = remaining_spoons;
+          printf("Hello\n");
+          /* for (int i = 0; i < num_ingred; i++) */
+          /*   recipies[num_recipies][i] = props[i]; */
+          /* num_recipies++; */
+          return;
+      } else {
+          for (int i = 0; i <= remaining_spoons; ++i) {
+              props[idx] = i;
+              make_recipies(remaining_spoons - i, num_ingred, idx + 1, props);
+          }
+      }
+  }
+
+    int main(){
+        bool inc = true;
+        int idx=0;
+        initialize();
+        int props[num_ingred];
+        for (int i=0; i < num_ingred; i++)
+            props[i]=0;
+
+        make_recipies(teaspoons, num_ingred, 0, props);
+        /* printf("total: %d\n", num_recipies); */
+    }
+
+
+#+end_src
+
+#+RESULTS:
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+| Hello |
+
+
+

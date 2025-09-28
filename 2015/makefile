@@ -102,9 +102,11 @@ day13:
 day14:
 	@echo "Day 14"
 	@gcc 14/a.c -Wall -o ./bin/14a
-	# @./bin/14a ./14/test.txt 1000
 	@./bin/14a ./14/input.txt 2503
 
 	@gcc 14/b.c -Wall -o ./bin/14b
-	# @./bin/14b ./14/test.txt 1000
 	@./bin/14b ./14/input.txt 2503
+day15:
+	@echo "Day 15"
+	@gcc 15/a.c -Wall -o ./bin/15a
+	@./bin/15a ./15/input.txt
