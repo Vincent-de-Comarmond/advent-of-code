@@ -117,3 +117,19 @@ day16:
 
 	@gcc 16/b.c -Wall -o ./bin/16b
 	@./bin/16b ./16/input.txt
+day17:
+	@echo "Day 17"
+	@clang 17/a.c -Wall -o ./bin/17a
+	# @./bin/17a 25 ./17/test.txt
+	@./bin/17a 150 ./17/input.txt
+
+	@clang 17/b.c -Wall -o ./bin/17b
+	@./bin/17b 150 ./17/input.txt
+day18:
+	@echo "Day 18"
+	@clang 18/a.c -Wall -o ./bin/18a
+	# @./bin/18a 4 6 ./18/test.txt
+	@./bin/18a 100 100 ./18/input.txt
+
+	@clang 18/b.c -Wall -o ./bin/18b
+	@./bin/18b 100 100 ./18/input.txt
