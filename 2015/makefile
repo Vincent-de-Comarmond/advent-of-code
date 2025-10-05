@@ -133,3 +133,12 @@ day18:
 
 	@clang 18/b.c -Wall -o ./bin/18b
 	@./bin/18b 100 100 ./18/input.txt
+
+day19:
+	@echo "Day 19"
+	@clang 19/a.c -Wall -o ./bin/19a
+	@./bin/19a ./19/test.txt
+	# @./bin/19a ./19/input.txt
+
+	# @clang 18/b.c -Wall -o ./bin/18b
+	# @./bin/18b 100 100 ./18/input.txt
