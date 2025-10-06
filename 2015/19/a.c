@@ -12,13 +12,13 @@ struct TransmutationStruct {
 
 typedef struct TransmutationStruct Transmuation;
 
-void possible_modifications(char *target, int num_transforms,
-                            Transmuation transmutations[1000]) {
+int possible_modifications(char *target, int num_transforms,
+                           Transmuation transmutations[1000]) {
 
   int i, j, k, l, idx = 0;
   char *output;
   char to_replace[3];
-  char(*replacements)[1000] = malloc(sizeof(char[(int)1e5][1000]));
+  char(*replacements)[1000] = malloc(sizeof(char[(int)1e4][1000]));
   Transmuation transformation;
 
   int target_len = strlen(target);
@@ -34,43 +34,44 @@ void possible_modifications(char *target, int num_transforms,
         to_replace[k] = target[i + k];
 
       if (strcmp(transformation.element, to_replace) == 0) {
+
         for (k = 0; k < transformation.num_output; k++) {
+
           output = transformation.outputs[k];
           int output_len = strlen(output);
 
-          printf("Input -> Output: %s -> %s\n", to_replace, output);
-
-          for (l = 0; l < i; l++) {
+          for (l = 0; l < i; l++)
             replacements[idx][l] = target[l];
-            printf("\talpha:\treplacements[%d][%d] = %c\n", idx, l,
-                   replacements[idx][l]);
-          }
-          for (l = i; l < i + output_len; l++) {
-            printf("l -i: %d", l - i);
-            replacements[idx][l] = output[l - i];
-            printf("\tbeta:\treplacements[%d][%d] = %c\n", idx, i + l,
-                   replacements[idx][l]);
-          }
-          for (l = i + torep_len; l < target_len; l++) {
-            replacements[idx][l - torep_len + output_len] = target[l];
-            printf("\tgamma:\treplacements[%d][%d] = %c\n", idx,
-                   l - torep_len + output_len,
-                   replacements[idx][l - torep_len + output_len]);
-          }
 
-          printf("Final idx: %d\n", target_len - torep_len + output_len);
+          for (l = i; l < i + output_len; l++)
+            replacements[idx][l] = output[l - i];
+
+          for (l = i + torep_len; l < target_len; l++)
+            replacements[idx][l - torep_len + output_len] = target[l];
+
           replacements[idx][target_len - torep_len + output_len] = '\0';
-          printf("Final: %s\n", replacements[idx]);
           idx++;
         }
       }
     }
   }
 
-  
+  int idx2 = 0;
+  bool match = false;
+  char(*uniques)[1000] = malloc(sizeof(char[idx][1000]));
 
-
-  
+  for (i = 0; i < idx; i++) {
+    for (j = 0; j < idx2; j++) {
+      match = false;
+      if (strcmp(replacements[i], uniques[j]) == 0) {
+        match = true;
+        break;
+      }
+    }
+    if (!match)
+      strcpy(uniques[idx2++], replacements[i]);
+  }
+  return idx2;
 }
 
 void solve(char *filename) {
@@ -122,20 +123,10 @@ void solve(char *filename) {
       }
     }
   }
-
-  /* for (i = 0; i < idx; i++) { */
-  /*   printf("%s\n", transmutations[i].element); */
-  /*   printf("\t%s", transmutations[i].outputs[0]); */
-  /*   for (int j = 1; j < transmutations[i].num_output; j++) */
-  /*     printf(", %s", transmutations[i].outputs[j]); */
-  /*   printf("\n"); */
-  /* } */
-  printf("Target:%s\n", target);
-  /* printf("Num transformations: %d\n", idx); */
-
-  possible_modifications(target, idx, transmutations);
-
   fclose(file);
+
+  int num_modifications = possible_modifications(target, idx, transmutations);
+  printf("Number of possible modifications is: %d\n", num_modifications);
 }
 
 int main(int argc, char *argv[argc]) {
@@ -147,3 +138,4 @@ int main(int argc, char *argv[argc]) {
 
   printf("Execution time: %f\n", (double)(end - start) / CLOCKS_PER_SEC);
 }
+
