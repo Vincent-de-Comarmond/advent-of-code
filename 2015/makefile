@@ -139,5 +139,6 @@ day19:
 	@clang 19/a.c -Wall -o ./bin/19a
 	@./bin/19a ./19/input.txt
 
-	@clang 18/b.c -Wall -o ./bin/18b
-	@./bin/18b 100 100 ./18/input.txt
+	@clang 19/b.c -Wall -o ./bin/19b
+	# @./bin/19b ./19/test.txt
+	@./bin/19b ./19/input.txt
