@@ -4,6 +4,9 @@
 #include <string.h>
 #include <time.h>
 
+int LENGTH = (int)1e6;
+int WIDTH = 550;
+
 struct TransmutationStruct {
   char element[11];
   int num_output;
@@ -13,8 +16,8 @@ struct TransmutationStruct {
 typedef struct TransmutationStruct Transmuation;
 
 int deconstruct(int num_sources, int gen, int num_transforms,
-                Transmuation transmutations[50], char sources[600][500],
-                char destinations[600][500]
+                Transmuation transmutations[50], char sources[LENGTH][WIDTH],
+                char destinations[LENGTH][WIDTH]
 
 ) {
   int i, j, k, l, m, reductions = 0;
@@ -22,15 +25,16 @@ int deconstruct(int num_sources, int gen, int num_transforms,
     for (j = 0; j < 500; j++)
       destinations[i][j] = '\0';
 
-  printf("Num sources: %d\n", num_sources);
   printf("Generations: %d\n", gen);
+  printf("Num sources: %d\n", num_sources);
 
-  char *target, tmp[600][1000], substitute[11] = {[0 ... 10] = '\0'};
+  char *target, substitute[11] = {[0 ... 10] = '\0'};
+  char(*tmp)[WIDTH] = malloc(sizeof(char[LENGTH][WIDTH]));
 
   for (i = 0; i < num_sources; i++) {
     target = sources[i];
     int target_len = strlen(target);
-    printf("Target length: %d\n", target_len);
+    /* printf("Target length: %d\n", target_len); */
 
     if (strcmp("e", target) == 0)
       return gen;
@@ -62,7 +66,7 @@ int deconstruct(int num_sources, int gen, int num_transforms,
 
           tmp[reductions][target_len - strlen(substitute) + repl_len] = '\0';
           /* printf("reduction[%d]: %s\n", reductions, tmp[reductions]); */
-          printf("Output length: %d\n", strlen(tmp[reductions]));
+          /* printf("Output length: %d\n", strlen(tmp[reductions])); */
           reductions++;
         }
       }
@@ -72,6 +76,8 @@ int deconstruct(int num_sources, int gen, int num_transforms,
   int idx = 0;
   bool match = false;
   for (i = 0; i < reductions; i++) {
+    if (i % 10000 == 0)
+      printf("Reduction: %d\n", i);
     /* printf("Reductions[%d]: %s\n", i, tmp[i]); */
     match = false;
     for (j = 0; j < idx; j++) {
@@ -82,9 +88,12 @@ int deconstruct(int num_sources, int gen, int num_transforms,
     }
     if (!match) {
       strcpy(destinations[idx++], tmp[i]);
-      printf("Strcpy length: %d\n", strlen(destinations[idx - 1]));
+      if (i % 10000 == 0)
+        printf("\tAdded dedup: %d\n", idx);
+      /* printf("Strcpy length: %d\n", strlen(destinations[idx - 1])); */
     }
   }
+  free(tmp);
 
   return deconstruct(idx, gen + 1, num_transforms, transmutations, destinations,
                      sources
@@ -145,7 +154,9 @@ void solve(char *filename) {
   }
   fclose(file);
 
-  char sources[600][500], destinations[600][500];
+  char(*sources)[WIDTH] = malloc(sizeof(char[LENGTH][WIDTH]));
+  char(*destinations)[WIDTH] = malloc(sizeof(char[LENGTH][WIDTH]));
+
   strcpy(sources[0], target);
 
   int generations =
