@@ -4,8 +4,8 @@
 #include <string.h>
 #include <time.h>
 
-int LENGTH = (int)1e6;
-int WIDTH = 550;
+#define LENGTH 1000000
+#define WIDTH 550
 
 struct TransmutationStruct {
   char element[11];
@@ -15,90 +15,86 @@ struct TransmutationStruct {
 
 typedef struct TransmutationStruct Transmuation;
 
-int deconstruct(int num_sources, int gen, int num_transforms,
-                Transmuation transmutations[50], char sources[LENGTH][WIDTH],
-                char destinations[LENGTH][WIDTH]
+float ave_str_len(int num_elements, char array_of_strings[LENGTH][WIDTH]) {
+  float result = 0;
+  for (int i = 0; i < num_elements; i++)
+    result += (float)strlen(array_of_strings[i]) / (float)num_elements;
+
+  return result;
+}
+
+int construct(int generation, char *target, int num_transforms,
+              Transmuation transmutations[50], int num_sources,
+              char inputs[LENGTH][WIDTH], char outputs[LENGTH][WIDTH]
 
 ) {
-  int i, j, k, l, m, reductions = 0;
-  for (i = 0; i < 600; i++)
-    for (j = 0; j < 500; j++)
-      destinations[i][j] = '\0';
 
-  printf("Generations: %d\n", gen);
+  int num_outputs = 0;
+  int target_length = strlen(target);
+
+  for (int i = 0; i < LENGTH; i++)
+    for (int j = 0; j < WIDTH; j++)
+      outputs[i][j] = '\0';
+
+  printf("Generations: %d\n", generation);
   printf("Num sources: %d\n", num_sources);
+  printf("Ave source len /Target Length: %f/%d\n",
+         ave_str_len(num_sources, inputs), target_length);
 
-  char *target, substitute[11] = {[0 ... 10] = '\0'};
-  char(*tmp)[WIDTH] = malloc(sizeof(char[LENGTH][WIDTH]));
+  for (int i = 0; i < num_sources; i++) {
+    char *source = inputs[i];
+    int word_len = strlen(source);
+    for (int j = 0; j < word_len; j++) {
+      for (int k = 0; k < num_transforms; k++) {
+        bool matches = true;
+        Transmuation transform = transmutations[k];
+        int rem_len = strlen(transform.element);
 
-  for (i = 0; i < num_sources; i++) {
-    target = sources[i];
-    int target_len = strlen(target);
-    /* printf("Target length: %d\n", target_len); */
+        for (int l = 0; l < rem_len; l++)
+          if (transform.element[l] != source[j + l]) {
+            matches = false;
+            break;
+          }
 
-    if (strcmp("e", target) == 0)
-      return gen;
-
-    for (j = 0; j < target_len; j++) {
-      for (k = 0; k < num_transforms; k++) {
-        Transmuation t = transmutations[k];
-        int swap_len = strlen(t.element);
-
-        for (l = 0; l < 11; l++)
-          substitute[l] = l < swap_len ? sources[i][j + l] : '\0';
-
-        if (strcmp(t.element, substitute) != 0)
+        if (!matches)
           continue;
 
-        for (l = 0; l < t.num_output; l++) {
-          char *replacement = t.outputs[l];
-          int repl_len = strlen(replacement);
-          /* printf("%s -> %s\n", substitute, replacement); */
+        for (int l = 0; l < transform.num_output; l++) {
+          char new_word[WIDTH] = {[0 ... WIDTH - 1] = '\0'};
+          char *replacement = transform.outputs[l];
+          int rep_len = strlen(replacement);
 
-          for (m = 0; m < j; m++)
-            tmp[reductions][m] = target[m];
-          for (m = j; m < j + repl_len; m++)
-            tmp[reductions][m] = replacement[m - j];
-          for (m = j + swap_len; m < target_len; m++)
-            tmp[reductions][m - swap_len + repl_len] = target[m];
+          for (int m = 0; m < j; m++)
+            new_word[m] = source[m];
+          for (int m = j; m < j + rep_len; m++)
+            new_word[m] = replacement[m - j];
+          for (int m = j + rem_len; m < word_len; m++)
+            new_word[m - rem_len + rep_len] = source[m];
+          new_word[word_len - rem_len + rep_len] = '\0';
 
-          /* printf("Source[%d]: %s\n", i, target); */
+          if (strcmp(new_word, target) == 0)
+            return generation;
+          if (strlen(target) <= strlen(new_word))
+            continue;
 
-          tmp[reductions][target_len - strlen(substitute) + repl_len] = '\0';
-          /* printf("reduction[%d]: %s\n", reductions, tmp[reductions]); */
-          /* printf("Output length: %d\n", strlen(tmp[reductions])); */
-          reductions++;
+          matches = false;
+          for (int m = 0; m < num_outputs; m++)
+            if (strcmp(new_word, outputs[m]) == 0) {
+              matches = true;
+              break;
+            }
+
+          if (!matches) {
+            strcpy(outputs[num_outputs++], new_word);
+            /* printf("Added: %s\n", outputs[num_outputs - 1]); */
+          }
         }
       }
     }
   }
 
-  int idx = 0;
-  bool match = false;
-  for (i = 0; i < reductions; i++) {
-    if (i % 10000 == 0)
-      printf("Reduction: %d\n", i);
-    /* printf("Reductions[%d]: %s\n", i, tmp[i]); */
-    match = false;
-    for (j = 0; j < idx; j++) {
-      if (strcmp(tmp[i], destinations[j]) == 0) {
-        match = true;
-        break;
-      }
-    }
-    if (!match) {
-      strcpy(destinations[idx++], tmp[i]);
-      if (i % 10000 == 0)
-        printf("\tAdded dedup: %d\n", idx);
-      /* printf("Strcpy length: %d\n", strlen(destinations[idx - 1])); */
-    }
-  }
-  free(tmp);
-
-  return deconstruct(idx, gen + 1, num_transforms, transmutations, destinations,
-                     sources
-
-  );
+  return construct(generation + 1, target, num_transforms, transmutations,
+                   num_outputs, outputs, inputs);
 }
 
 void solve(char *filename) {
@@ -129,8 +125,8 @@ void solve(char *filename) {
       break;
     } else {
       // Reverse source and destination from part 1
-      transition = strtok(buffer, " => ");
-      source = strtok(NULL, " => ");
+      source = strtok(buffer, " => ");
+      transition = strtok(NULL, " => ");
 
       found = false;
       for (i = 0; i < idx; i++)
@@ -154,13 +150,22 @@ void solve(char *filename) {
   }
   fclose(file);
 
-  char(*sources)[WIDTH] = malloc(sizeof(char[LENGTH][WIDTH]));
-  char(*destinations)[WIDTH] = malloc(sizeof(char[LENGTH][WIDTH]));
+  char(*inputs)[WIDTH] = malloc(sizeof(char[LENGTH][WIDTH]));
+  char(*outputs)[WIDTH] = malloc(sizeof(char[LENGTH][WIDTH]));
 
-  strcpy(sources[0], target);
+  for (int i = 0; i < LENGTH; i++)
+    for (int j = 0; j < WIDTH; j++) {
+      inputs[i][j] = '\0';
+      outputs[i][j] = '\0';
+    }
 
+  inputs[0][0] = 'e';
+
+  printf("Target: %s\n", target);
   int generations =
-      deconstruct(1, 0, idx, transmutations, sources, destinations);
+      construct(0, target, idx, transmutations, 1, inputs, outputs);
+
+  /* deconstruct(1, 0, idx, transmutations, sources, destinations); */
   printf("Min synthesis generations: %d\n", generations);
 }
 
