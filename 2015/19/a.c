@@ -137,5 +137,5 @@ int main(int argc, char *argv[argc]) {
   end = clock();
 
   printf("Execution time: %f\n", (double)(end - start) / CLOCKS_PER_SEC);
+  return EXIT_SUCCESS;
 }
-
