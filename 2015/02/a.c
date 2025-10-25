@@ -29,7 +29,6 @@ void wrapping_paper_needed(char *filename) {
 
   FILE *file = fopen(filename, "r");
   char line[20];
-  char *token;
   long wrapping_needed = 0;
 
   if (file != NULL) {

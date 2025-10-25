@@ -82,7 +82,7 @@ long solve(char *file_path) {
   int idx = 0, idx2 = 0;
   bool added_name = false;
 
-  char name_matrix[20][20] = {'\0'};
+  char name_matrix[20][20] = {[0 ... 19] = {[0 ... 19] = '\0'}};
   int distance_matrix[20][20] = {[0 ... 9] = {[0 ... 9] = 0}};
 
   while (fgets(line, buffer_size, file)) {

@@ -5,7 +5,6 @@
 #include <time.h>
 
 long ribbon_for_present(char *input_line) {
-  int idx;
   long sides[3];
   long volume, smallest_perimeter;
 
@@ -32,7 +31,6 @@ void wrapping_paper_needed(char *filename) {
 
   FILE *file = fopen(filename, "r");
   char line[20];
-  char *token;
   long total_ribbon_needed = 0;
 
   if (file != NULL) {
