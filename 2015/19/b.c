@@ -4,169 +4,161 @@
 #include <string.h>
 #include <time.h>
 
-#define LENGTH 1000000
+#define EL_SIZE 3
 #define WIDTH 550
+#define TRANSFORMS 50
+#define MSIZE 10
+#define MAX (int)1e6
 
-struct TransmutationStruct {
-  char element[11];
-  int num_output;
-  char outputs[10][11];
-};
+typedef char Element[EL_SIZE];
+typedef char Molecule[WIDTH][EL_SIZE];
 
-typedef struct TransmutationStruct Transmuation;
+static char dests[TRANSFORMS][MSIZE][EL_SIZE] = {
+    [0 ... TRANSFORMS - 1] = {[0 ... MSIZE - 1] = {'\0', '\0', '\0'}}};
+static int dest_sizes[TRANSFORMS] = {[0 ... TRANSFORMS - 1] = 0};
 
-float ave_str_len(int num_elements, char array_of_strings[LENGTH][WIDTH]) {
-  float result = 0;
-  for (int i = 0; i < num_elements; i++)
-    result += (float)strlen(array_of_strings[i]) / (float)num_elements;
+static char sources[TRANSFORMS][EL_SIZE] = {
+    [0 ... TRANSFORMS - 1] = {'\0', '\0', '\0'}};
 
-  return result;
+static char target[WIDTH][EL_SIZE] = {[0 ... WIDTH - 1] = {'\0', '\0', '\0'}};
+
+int read_element(char *mol_str, Element element) {
+  element[0] = mol_str[0];
+  if (strlen(mol_str) == 1) {
+    return 1;
+  }
+  if ('a' <= mol_str[1] && mol_str[1] <= 'z') {
+    element[1] = mol_str[1];
+    return 2;
+  }
+  return 1;
 }
 
-int construct(int generation, char *target, int num_transforms,
-              Transmuation transmutations[50], int num_sources,
-              char inputs[LENGTH][WIDTH], char outputs[LENGTH][WIDTH]
+int read_molecule(char *mol_str, Molecule molecule, int number) {
+  int accum = 0, idx = 0, offset = 0;
+  char copy[WIDTH] = {[0 ... WIDTH - 1] = '\0'};
+  strcpy(copy, mol_str);
 
-) {
-
-  int num_outputs = 0;
-  int target_length = strlen(target);
-
-  for (int i = 0; i < LENGTH; i++)
-    for (int j = 0; j < WIDTH; j++)
-      outputs[i][j] = '\0';
-
-  printf("Generations: %d\n", generation);
-  printf("Num sources: %d\n", num_sources);
-  printf("Ave source len /Target Length: %f/%d\n",
-         ave_str_len(num_sources, inputs), target_length);
-
-  for (int i = 0; i < num_sources; i++) {
-    char *source = inputs[i];
-    int word_len = strlen(source);
-    for (int j = 0; j < word_len; j++) {
-      for (int k = 0; k < num_transforms; k++) {
-        bool matches = true;
-        Transmuation transform = transmutations[k];
-        int rem_len = strlen(transform.element);
-
-        for (int l = 0; l < rem_len; l++)
-          if (transform.element[l] != source[j + l]) {
-            matches = false;
-            break;
-          }
-
-        if (!matches)
-          continue;
-
-        for (int l = 0; l < transform.num_output; l++) {
-          char new_word[WIDTH] = {[0 ... WIDTH - 1] = '\0'};
-          char *replacement = transform.outputs[l];
-          int rep_len = strlen(replacement);
-
-          for (int m = 0; m < j; m++)
-            new_word[m] = source[m];
-          for (int m = j; m < j + rep_len; m++)
-            new_word[m] = replacement[m - j];
-          for (int m = j + rem_len; m < word_len; m++)
-            new_word[m - rem_len + rep_len] = source[m];
-          new_word[word_len - rem_len + rep_len] = '\0';
-
-          if (strcmp(new_word, target) == 0)
-            return generation;
-          if (strlen(target) <= strlen(new_word))
-            continue;
-
-          matches = false;
-          for (int m = 0; m < num_outputs; m++)
-            if (strcmp(new_word, outputs[m]) == 0) {
-              matches = true;
-              break;
-            }
-
-          if (!matches) {
-            strcpy(outputs[num_outputs++], new_word);
-            /* printf("Added: %s\n", outputs[num_outputs - 1]); */
-          }
-        }
-      }
+  if (number == -1)
+    while (0 < strlen(copy)) {
+      offset = read_element(copy, molecule[idx]);
+      accum += offset;
+      strncpy(copy, mol_str + accum, EL_SIZE);
+      idx++;
+    }
+  else {
+    while (idx < number && 0 < strlen(copy)) {
+      offset = read_element(copy, molecule[idx]);
+      accum += offset;
+      strncpy(copy, mol_str + accum, EL_SIZE);
+      idx++;
     }
   }
-
-  return construct(generation + 1, target, num_transforms, transmutations,
-                   num_outputs, outputs, inputs);
+  return idx;
 }
 
-void solve(char *filename) {
+typedef struct _NBNUMS {
+  int max_expand;
+  int num_poss_react;
+  int target_size;
+} NBNUMS;
 
+NBNUMS define_problem(char *filename) {
   FILE *file = fopen(filename, "r");
-  if (file == NULL) {
-    printf("FAILED - could not open file");
-  }
+  if (file == NULL)
+    exit(EXIT_FAILURE);
 
-  int i = 0;
-  bool found = false;
-  bool istarget = false;
-
-  char target[1000], buffer[1000];
-  int idx = 0;
-  char *source, *transition;
-  Transmuation transmutations[1000];
+  int idx = 0, max_expansion = 0, targ_size = 0, tmp = 0;
+  bool is_targ = false;
+  char buffer[WIDTH];
+  char *destination;
 
   while (fgets(buffer, 1000, file)) {
     buffer[strcspn(buffer, "\n")] = 0;
     if (strlen(buffer) == 0) {
-      istarget = true;
+      is_targ = true;
       continue;
     }
 
-    if (istarget) {
-      memcpy(target, buffer, 1000);
+    if (is_targ) {
+      targ_size = read_molecule(buffer, target, -1);
+      printf("Target molecules: %d\n", targ_size);
       break;
     } else {
-      // Reverse source and destination from part 1
-      source = strtok(buffer, " => ");
-      transition = strtok(NULL, " => ");
-
-      found = false;
-      for (i = 0; i < idx; i++)
-        if (strcmp(source, transmutations[i].element) == 0) {
-          found = true;
-          break;
-        }
-
-      if (found) {
-
-        strcpy(transmutations[i].outputs[transmutations[i].num_output],
-               transition);
-        transmutations[i].num_output++;
-      } else {
-        strcpy(transmutations[idx].element, source);
-        strcpy(transmutations[idx].outputs[0], transition);
-        transmutations[idx].num_output = 1;
-        idx++;
-      }
+      strcpy(sources[idx], strtok(buffer, " => "));
+      destination = strtok(NULL, " => ");
+      tmp = read_molecule(destination, dests[idx], -1);
+      max_expansion = max_expansion < tmp ? tmp : max_expansion;
+      dest_sizes[idx] = tmp;
+      idx++;
     }
   }
   fclose(file);
 
-  char(*inputs)[WIDTH] = malloc(sizeof(char[LENGTH][WIDTH]));
-  char(*outputs)[WIDTH] = malloc(sizeof(char[LENGTH][WIDTH]));
+  NBNUMS nbnums;
+  nbnums.max_expand = max_expansion;
+  nbnums.num_poss_react = idx;
+  nbnums.target_size = targ_size;
+  return nbnums;
+}
 
-  for (int i = 0; i < LENGTH; i++)
-    for (int j = 0; j < WIDTH; j++) {
-      inputs[i][j] = '\0';
-      outputs[i][j] = '\0';
+bool can_reduce(int targ_size, char this_target[targ_size][EL_SIZE],
+                int reduction_size,
+                char this_reduction[reduction_size][EL_SIZE], int targ_offset,
+                int stop_idx) {
+
+  if (stop_idx < targ_offset + reduction_size)
+    return false;
+  for (int i = 0; i < reduction_size; i++)
+    if (strcmp(this_target[targ_offset + i], this_reduction[i]) != 0)
+      return false;
+  return true;
+}
+
+void solve(char *filename) {
+  NBNUMS nbnums = define_problem(filename);
+
+  printf("Max size: %d\nNum transforms: %d\nTarget size: %d\n",
+         nbnums.max_expand, nbnums.num_poss_react, nbnums.target_size);
+
+  for (int i = 0; i < nbnums.num_poss_react; i++) {
+    printf("Source: %s\n", sources[i]);
+    for (int j = 0; j < dest_sizes[i]; j++)
+      printf("\t-> %s\n", dests[i][j]);
+  }
+
+  for (int i = 0; i < nbnums.target_size; i++)
+    printf(i == 0 ? "%s" : " %s", target[i]);
+  printf("\n");
+
+  int gens = 0, max_gen = 1e4, targ_idx = 0;
+
+  int targ_sizes[MAX] = {[0 ... MAX - 1] = 0};
+  targ_sizes[0] = nbnums.target_size;
+
+  char targs[MAX][nbnums.target_size][EL_SIZE];
+  for (int i = 0; i < nbnums.target_size; i++)
+    strcpy(targs[targ_idx][i], target[i]);
+  targ_idx++;
+
+  while (gens < max_gen) {
+    for (int i = 0; i < targ_idx; i++) {
+      // targ[i];
+      for (int j = 0; j < nbnums.max_expand; j++) {
+        for (int k = 0; k < nbnums.num_poss_react; k++) {
+          if (can_reduce(nbnums.target_size, targs[i], dest_sizes[k], dests[k],
+                         j, nbnums.max_expand)) {
+            for (int l = 1; l < TODO; l++){
+              
+              
+            }
+
+            
+          }
+        }
+      }
     }
-
-  inputs[0][0] = 'e';
-
-  printf("Target: %s\n", target);
-  int generations =
-      construct(0, target, idx, transmutations, 1, inputs, outputs);
-
-  /* deconstruct(1, 0, idx, transmutations, sources, destinations); */
-  printf("Min synthesis generations: %d\n", generations);
+  }
 }
 
 int main(int argc, char *argv[argc]) {
@@ -177,4 +169,5 @@ int main(int argc, char *argv[argc]) {
   end = clock();
 
   printf("Execution time: %f\n", (double)(end - start) / CLOCKS_PER_SEC);
+  return EXIT_SUCCESS;
 }
