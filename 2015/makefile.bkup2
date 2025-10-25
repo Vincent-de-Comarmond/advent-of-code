@@ -1,0 +1,79 @@
+all: day01 day02 day03 day04 day05 day06 day07 day08 day09 day10 day11 day12 day13 day14 day15 day16 day17 day18 day19
+.PHONY: header
+
+
+UNAME := $(shell uname)
+ifeq ($(UNAME),Windows_NT)
+	EXT:=.exe
+else
+	EXT:=
+endif
+
+CC := clang
+CFLAGS := -Wall
+
+define compile_and_run
+	echo "Day $(1)$(strip $(2))"
+	$(CC) $(1)/$(strip $(2)).c $(CFLAGS) -o bin/$(strip $(1))$(strip $(2))$(strip $(EXE_EXT))
+	bin/$(strip $(1))$(strip $(2))$(strip $(EXE_EXT)) $(1)/input.txt
+	echo "========================================"
+endef
+
+
+header: echo "========================================";
+
+day%:
+	@$(call compile_and_run, $*, a)
+	@$(call compile_and_run, $*, b)
+
+day04:
+	@echo "Day 04"
+	@clang 04/a.c -lssl -lcrypto -o ./bin/04a
+	@./bin/04a iwrupvqb
+
+	@clang 04/b.c -lssl -lcrypto -o ./bin/04b
+	@./bin/04b iwrupvqb
+	@echo ""
+
+
+day10:
+	@echo "Day 10"
+	@clang 10/a.c -Wall -o ./bin/10a
+	@./bin/10a 3113322113 40
+	@./bin/10a 3113322113 50
+	@echo ""
+
+day11:
+	@echo "Day 11"
+	@clang 11/a.c -Wall -o ./bin/11a
+	@./bin/11a hepxcrrq 
+	@echo ""
+
+day14:
+	@echo "Day 14"
+	@clang 14/a.c -Wall -o ./bin/14a
+	@./bin/14a ./14/input.txt 2503
+
+	@clang 14/b.c -Wall -o ./bin/14b
+	@./bin/14b ./14/input.txt 2503
+
+day15:
+	@echo "Day 15"
+	@clang 15/a.c -Wall -o ./bin/15a
+	@./bin/15a ./15/input.txt
+
+day17:
+	@echo "Day 17"
+	@clang 17/a.c -Wall -o ./bin/17a
+	@./bin/17a 150 ./17/input.txt
+
+	@clang 17/b.c -Wall -o ./bin/17b
+	@./bin/17b 150 ./17/input.txt
+
+day18:
+	@echo "Day 18"
+	@clang 18/a.c -Wall -o ./bin/18a
+	@./bin/18a 100 100 ./18/input.txt
+
+	@clang 18/b.c -Wall -o ./bin/18b
+	@./bin/18b 100 100 ./18/input.txt

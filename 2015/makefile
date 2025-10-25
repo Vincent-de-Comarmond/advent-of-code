@@ -1,144 +1,125 @@
-all: day01 day02 day03 day04 day05 day06 day07 day08 day09 day10 day11 day12 day13
+# ------------------------------
+# Cross-platform Makefile
+# ------------------------------
 
-day01:
-	@echo "Day 01"
-	@gcc 01/a.c -o ./bin/01a
-	@./bin/01a 01/input.txt
+# Detect platform / pick tools
+ifeq ($(OS),Windows_NT)
+  EXE_EXT := .exe
+  RM      := del /Q
+  MKDIR   := if not exist bin mkdir bin
+  RUNPFX  :=
+else
+  EXE_EXT :=
+  RM      := rm -f
+  MKDIR   := mkdir -p bin
+  RUNPFX  := ./                # prefix when running executables
+endif
 
-	@gcc 01/b.c -o ./bin/01b
-	@./bin/01b 01/input.txt
-	@echo ""
-day02:
-	@echo "Day 02"
-	@gcc 02/a.c -o ./bin/02a
-	@./bin/02a 02/input.txt
+# Compiler & flags (override with: make CC=gcc CFLAGS="-Wall -O3")
+CC      ?= clang
+CFLAGS  ?= -Wall -O2
+LDFLAGS ?=
 
-	@gcc 02/b.c -o ./bin/02b
-	@./bin/02b 02/input.txt
-	@echo ""
-day03:
-	@echo "Day 03"
-	@gcc 03/a.c -o ./bin/03a
-	@./bin/03a 03/input.txt
+# Add platform libs if needed
+# (example: -lm on Linux)
+UNAME_S := $(shell uname -s 2>/dev/null)
+ifeq ($(UNAME_S),Linux)
+  LDFLAGS += -lm
+endif
 
-	@gcc 03/b.c -o ./bin/03b
-	@./bin/03b 03/input.txt
-	@echo ""
+# Days to build (no 'seq' on Windows)
+DAYS := 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19
+
+# Default target: build all days (pattern rule handles most)
+.PHONY: all clean debug release
+all: $(addprefix day,$(DAYS))
+
+# Generic compile+run macro
+# $(1)=dir like "01", $(2)=part "a"|"b", $(3)=extra args to run (optional)
+define COMPILE_AND_RUN
+	@echo ===== Day $(1)$(2) =====
+	@$(MKDIR)
+	@$(CC) $(1)/$(2).c $(CFLAGS) $(LDFLAGS) -o bin/$(1)$(2)$(EXE_EXT)
+	@$(RUNPFX)bin/$(1)$(2)$(EXE_EXT) $(3)
+	@echo
+endef
+
+# Generic rule: dayXX builds & runs a and b with the default input
+day%:
+	$(call COMPILE_AND_RUN,$*,a,$*/input.txt)
+	$(call COMPILE_AND_RUN,$*,b,$*/input.txt)
+
+# -------------- Special cases --------------
+
+# day04 needs OpenSSL and custom args
 day04:
-	@echo "Day 04"
-	@gcc 04/a.c -lssl -lcrypto -o ./bin/04a
-	@./bin/04a iwrupvqb
+	@echo ===== Day 04 =====
+	@$(MKDIR)
+	@$(CC) 04/a.c $(CFLAGS) -lssl -lcrypto -o bin/04a$(EXE_EXT)
+	@$(RUNPFX)bin/04a$(EXE_EXT) iwrupvqb
+	@$(CC) 04/b.c $(CFLAGS) -lssl -lcrypto -o bin/04b$(EXE_EXT)
+	@$(RUNPFX)bin/04b$(EXE_EXT) iwrupvqb
+	@echo
 
-	@gcc 04/b.c -lssl -lcrypto -o ./bin/04b
-	@./bin/04b iwrupvqb
-	@echo ""
-day05:
-	@echo "Day 05"
-	@gcc 05/a.c -o ./bin/05a
-	@./bin/05a ./05/input.txt
-
-	@gcc 05/b.c -o ./bin/05b
-	@./bin/05b ./05/input.txt
-	@echo ""
-day06:
-	@echo "Day 06"
-	@gcc 06/a.c -o ./bin/06a
-	@./bin/06a ./06/input.txt
-
-	@gcc 06/b.c -o ./bin/06b
-	@./bin/06b ./06/input.txt
-	@echo ""
-day07:
-	@echo "Day 07"
-	@gcc 07/a.c -Wall -o ./bin/07a
-	@./bin/07a ./07/input.txt
-
-	@gcc 07/b.c -Wall -o ./bin/07b
-	@./bin/07b ./07/input.txt
-	@echo ""
-day08:
-	@echo "Day 08"
-	@gcc 08/a.c -Wall -o ./bin/08a
-	@./bin/08a ./08/input.txt
-
-	@gcc 08/b.c -Wall -o ./bin/08b
-	@./bin/08b ./08/input.txt
-	@echo ""
-day09:
-	@echo "Day 09"
-	@gcc 09/a.c -Wall -o ./bin/09a
-	@./bin/09a ./09/input.txt
-
-	@gcc 09/b.c -Wall -o ./bin/09b
-	@./bin/09b ./09/input.txt
-	@echo ""
 day10:
-	@echo "Day 10"
-	@gcc 10/a.c -Wall -o ./bin/10a
-	@./bin/10a 3113322113 40
-	@./bin/10a 3113322113 50
-	@echo ""
+	@echo ===== Day 10 =====
+	@$(MKDIR)
+	@$(CC) 10/a.c $(CFLAGS) -o bin/10a$(EXE_EXT)
+	@$(RUNPFX)bin/10a$(EXE_EXT) 3113322113 40
+	@$(RUNPFX)bin/10a$(EXE_EXT) 3113322113 50
+	@echo
+
 day11:
-	@echo "Day 11"
-	@gcc 11/a.c -Wall -o ./bin/11a
-	@./bin/11a hepxcrrq 
-	@echo ""
-day12:
-	@echo "Day 12"
-	@gcc 12/a.c -Wall -o ./bin/12a
-	@./bin/12a ./12/input.txt
+	@echo ===== Day 11 =====
+	@$(MKDIR)
+	@$(CC) 11/a.c $(CFLAGS) -o bin/11a$(EXE_EXT)
+	@$(RUNPFX)bin/11a$(EXE_EXT) hepxcrrq
+	@echo
 
-	@gcc 12/b.c -Wall -o ./bin/12b
-	@./bin/12b ./12/input.txt
-	@echo ""
-day13:
-	@echo "Day 13"
-	@gcc 13/a.c -Wall -o ./bin/13a
-	@./bin/13a ./13/input.txt
-
-	@gcc 13/b.c -Wall -o ./bin/13b
-	@./bin/13b ./13/input.txt
-	@echo ""
 day14:
-	@echo "Day 14"
-	@gcc 14/a.c -Wall -o ./bin/14a
-	@./bin/14a ./14/input.txt 2503
+	@echo ===== Day 14 =====
+	@$(MKDIR)
+	@$(CC) 14/a.c $(CFLAGS) -o bin/14a$(EXE_EXT)
+	@$(RUNPFX)bin/14a$(EXE_EXT) 14/input.txt 2503
+	@$(CC) 14/b.c $(CFLAGS) -o bin/14b$(EXE_EXT)
+	@$(RUNPFX)bin/14b$(EXE_EXT) 14/input.txt 2503
+	@echo
 
-	@gcc 14/b.c -Wall -o ./bin/14b
-	@./bin/14b ./14/input.txt 2503
 day15:
-	@echo "Day 15"
-	@gcc 15/a.c -Wall -o ./bin/15a
-	@./bin/15a ./15/input.txt
-day16:
-	@echo "Day 16"
-	@gcc 16/a.c -Wall -o ./bin/16a
-	@./bin/16a ./16/input.txt
+	@echo ===== Day 15 =====
+	@$(MKDIR)
+	@$(CC) 15/a.c $(CFLAGS) -o bin/15a$(EXE_EXT)
+	@$(RUNPFX)bin/15a$(EXE_EXT) 15/input.txt
+	@echo
 
-	@gcc 16/b.c -Wall -o ./bin/16b
-	@./bin/16b ./16/input.txt
 day17:
-	@echo "Day 17"
-	@clang 17/a.c -Wall -o ./bin/17a
-	# @./bin/17a 25 ./17/test.txt
-	@./bin/17a 150 ./17/input.txt
+	@echo ===== Day 17 =====
+	@$(MKDIR)
+	@$(CC) 17/a.c $(CFLAGS) -o bin/17a$(EXE_EXT)
+	@$(RUNPFX)bin/17a$(EXE_EXT) 150 17/input.txt
+	@$(CC) 17/b.c $(CFLAGS) -o bin/17b$(EXE_EXT)
+	@$(RUNPFX)bin/17b$(EXE_EXT) 150 17/input.txt
+	@echo
 
-	@clang 17/b.c -Wall -o ./bin/17b
-	@./bin/17b 150 ./17/input.txt
 day18:
-	@echo "Day 18"
-	@clang 18/a.c -Wall -o ./bin/18a
-	# @./bin/18a 4 6 ./18/test.txt
-	@./bin/18a 100 100 ./18/input.txt
+	@echo ===== Day 18 =====
+	@$(MKDIR)
+	@$(CC) 18/a.c $(CFLAGS) -o bin/18a$(EXE_EXT)
+	@$(RUNPFX)bin/18a$(EXE_EXT) 100 100 18/input.txt
+	@$(CC) 18/b.c $(CFLAGS) -o bin/18b$(EXE_EXT)
+	@$(RUNPFX)bin/18b$(EXE_EXT) 100 100 18/input.txt
+	@echo
 
-	@clang 18/b.c -Wall -o ./bin/18b
-	@./bin/18b 100 100 ./18/input.txt
+# -------------- Utilities --------------
 
-day19:
-	@echo "Day 19"
-	@clang 19/a.c -Wall -o ./bin/19a
-	@./bin/19a ./19/input.txt
+clean:
+	@echo Cleaning...
+	@$(RM) bin\*$(EXE_EXT) 2> NUL || true
+	@$(RM) bin/*$(EXE_EXT) 2> /dev/null || true
+	@echo Done.
 
-	@clang 19/b2.c -Wall -o ./bin/19b2
-	# @./bin/19b ./19/test.txt
-	@./bin/19b2 ./19/input.txt
+debug:
+	@$(MAKE) CFLAGS="-Wall -g -O0"
+
+release:
+	@$(MAKE) CFLAGS="-Wall -O3"
