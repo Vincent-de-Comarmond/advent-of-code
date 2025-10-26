@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,7 +9,7 @@
 #define WIDTH 550
 #define TRANSFORMS 50
 #define MSIZE 10
-#define MAX (int)1e6
+#define MAX (int)5e3
 
 typedef char Element[EL_SIZE];
 typedef char Molecule[WIDTH][EL_SIZE];
@@ -73,7 +74,7 @@ NBNUMS define_problem(char *filename) {
   char buffer[WIDTH];
   char *destination;
 
-  while (fgets(buffer, 1000, file)) {
+  while (fgets(buffer, WIDTH, file)) {
     buffer[strcspn(buffer, "\n")] = 0;
     if (strlen(buffer) == 0) {
       is_targ = true;
@@ -118,46 +119,66 @@ bool can_reduce(int targ_size, char this_target[targ_size][EL_SIZE],
 void solve(char *filename) {
   NBNUMS nbnums = define_problem(filename);
 
-  printf("Max size: %d\nNum transforms: %d\nTarget size: %d\n",
-         nbnums.max_expand, nbnums.num_poss_react, nbnums.target_size);
+  /* printf("Max size: %d\nNum transforms: %d\nTarget size: %d\n", */
+  /*        nbnums.max_expand, nbnums.num_poss_react, nbnums.target_size); */
 
-  for (int i = 0; i < nbnums.num_poss_react; i++) {
-    printf("Source: %s\n", sources[i]);
-    for (int j = 0; j < dest_sizes[i]; j++)
-      printf("\t-> %s\n", dests[i][j]);
-  }
+  /* for (int i = 0; i < nbnums.num_poss_react; i++) { */
+  /*   printf("Source: %s\n", sources[i]); */
+  /*   for (int j = 0; j < dest_sizes[i]; j++) */
+  /*     printf("\t-> %s\n", dests[i][j]); */
+  /* } */
 
-  for (int i = 0; i < nbnums.target_size; i++)
-    printf(i == 0 ? "%s" : " %s", target[i]);
-  printf("\n");
+  /* for (int i = 0; i < nbnums.target_size; i++) */
+  /*   printf(i == 0 ? "%s" : " %s", target[i]); */
+  /* printf("\n"); */
 
-  int gens = 0, max_gen = 1e4, targ_idx = 0;
+  int gens = 0, max_gen = 1e4, targ_idx = 0, targ_cpy_idx = 0;
+  size_t size = MAX * nbnums.target_size * EL_SIZE * sizeof(char);
 
   int targ_sizes[MAX] = {[0 ... MAX - 1] = 0};
+  int targ_size_copy[MAX] = {[0 ... MAX - 1] = 0};
   targ_sizes[0] = nbnums.target_size;
 
   char targs[MAX][nbnums.target_size][EL_SIZE];
+  char targs_cpy[MAX][nbnums.target_size][EL_SIZE];
+  memset(targs_cpy, '\0', size);
+
   for (int i = 0; i < nbnums.target_size; i++)
     strcpy(targs[targ_idx][i], target[i]);
   targ_idx++;
 
   while (gens < max_gen) {
     for (int i = 0; i < targ_idx; i++) {
-      // targ[i];
+      /* for (int j = 0; j < targ_sizes[i]; j++) */
+      /*   printf("%s ", targs[i][j]); */
+      printf("Num candidates: %d\n", targ_idx);
+      printf("\nsize %d\n", targ_sizes[i]);
+
       for (int j = 0; j < nbnums.max_expand; j++) {
         for (int k = 0; k < nbnums.num_poss_react; k++) {
           if (can_reduce(nbnums.target_size, targs[i], dest_sizes[k], dests[k],
                          j, nbnums.max_expand)) {
-            for (int l = 1; l < TODO; l++){
-              
-              
+
+            strcpy(targs_cpy[targ_cpy_idx][0], sources[k]);
+            targ_size_copy[targ_cpy_idx] = targ_sizes[i] + 1 - dest_sizes[k];
+            for (int l = 1; l < targ_size_copy[targ_cpy_idx]; l++) {
+              strcpy(targs_cpy[targ_cpy_idx][l],
+                     targs[i][dest_sizes[k] + l - 1]);
             }
 
-            
+            targ_cpy_idx++;
           }
         }
       }
     }
+    memcpy(targs, targs_cpy, size);
+    memcpy(targ_sizes, targ_size_copy, MAX * sizeof(int));
+    targ_idx = targ_cpy_idx;
+
+    targ_cpy_idx = 0;
+    memset(targ_size_copy, 0, MAX * sizeof(int));
+    memset(targs_cpy, '\0', size);
+    gens++;
   }
 }
 
