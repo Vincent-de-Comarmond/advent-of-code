@@ -1,4 +1,4 @@
-# ------------------------------
+	# ------------------------------
 # Cross-platform Makefile
 # ------------------------------
 
@@ -12,7 +12,7 @@ else
   EXE_EXT :=
   RM      := rm -f
   MKDIR   := mkdir -p bin
-  RUNPFX  := ./                # prefix when running executables
+  RUNPFX  := ./
 endif
 
 # Compiler & flags (override with: make CC=gcc CFLAGS="-Wall -O3")
@@ -39,7 +39,9 @@ all: $(addprefix day,$(DAYS))
 define COMPILE_AND_RUN
 	@echo ===== Day $(1)$(2) =====
 	@$(MKDIR)
+	@echo "$(CC) $(1)/$(2).c $(CFLAGS) $(LDFLAGS) -o bin/$(1)$(2)$(EXE_EXT)"
 	@$(CC) $(1)/$(2).c $(CFLAGS) $(LDFLAGS) -o bin/$(1)$(2)$(EXE_EXT)
+	@echo "$(RUNPFX)bin/$(1)$(2)$(EXE_EXT) $(3)"
 	@$(RUNPFX)bin/$(1)$(2)$(EXE_EXT) $(3)
 	@echo
 endef
