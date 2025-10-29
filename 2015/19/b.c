@@ -9,7 +9,7 @@
 #define WIDTH 550
 #define TRANSFORMS 50
 #define MSIZE 10
-#define MAX (int)5e3
+#define MAX (int)1e6
 
 typedef char Element[EL_SIZE];
 typedef char Molecule[WIDTH][EL_SIZE];
@@ -25,9 +25,9 @@ static char target[WIDTH][EL_SIZE] = {[0 ... WIDTH - 1] = {'\0', '\0', '\0'}};
 
 int read_element(char *mol_str, Element element) {
   element[0] = mol_str[0];
-  if (strlen(mol_str) == 1) {
+  if (strlen(mol_str) == 1)
     return 1;
-  }
+
   if ('a' <= mol_str[1] && mol_str[1] <= 'z') {
     element[1] = mol_str[1];
     return 2;
@@ -122,11 +122,11 @@ void solve(char *filename) {
   /* printf("Max size: %d\nNum transforms: %d\nTarget size: %d\n", */
   /*        nbnums.max_expand, nbnums.num_poss_react, nbnums.target_size); */
 
-  /* for (int i = 0; i < nbnums.num_poss_react; i++) { */
-  /*   printf("Source: %s\n", sources[i]); */
-  /*   for (int j = 0; j < dest_sizes[i]; j++) */
-  /*     printf("\t-> %s\n", dests[i][j]); */
-  /* } */
+  for (int i = 0; i < nbnums.num_poss_react; i++) {
+    printf("Source: %s\n", sources[i]);
+    for (int j = 0; j < dest_sizes[i]; j++)
+      printf("\t-> %s\n", dests[i][j]);
+  }
 
   /* for (int i = 0; i < nbnums.target_size; i++) */
   /*   printf(i == 0 ? "%s" : " %s", target[i]); */
@@ -139,9 +139,16 @@ void solve(char *filename) {
   int targ_size_copy[MAX] = {[0 ... MAX - 1] = 0};
   targ_sizes[0] = nbnums.target_size;
 
-  char targs[MAX][nbnums.target_size][EL_SIZE];
-  char targs_cpy[MAX][nbnums.target_size][EL_SIZE];
+  char(*targs)[nbnums.target_size][EL_SIZE];
+  char(*targs_cpy)[nbnums.target_size][EL_SIZE];
+
+  targs = malloc(MAX * sizeof(*targs));
+  targs_cpy = malloc(MAX * sizeof(*targs_cpy));
+  char tmp[nbnums.target_size][EL_SIZE];
+
+  memset(targs, '\0', size);
   memset(targs_cpy, '\0', size);
+  memset(tmp, '\0', nbnums.target_size * EL_SIZE * sizeof(char));
 
   for (int i = 0; i < nbnums.target_size; i++)
     strcpy(targs[targ_idx][i], target[i]);
@@ -151,7 +158,7 @@ void solve(char *filename) {
     for (int i = 0; i < targ_idx; i++) {
       /* for (int j = 0; j < targ_sizes[i]; j++) */
       /*   printf("%s ", targs[i][j]); */
-      printf("Num candidates: %d\n", targ_idx);
+      printf("\nNum candidates: %d\n", targ_idx);
       printf("\nsize %d\n", targ_sizes[i]);
 
       for (int j = 0; j < nbnums.max_expand; j++) {
@@ -159,14 +166,42 @@ void solve(char *filename) {
           if (can_reduce(nbnums.target_size, targs[i], dest_sizes[k], dests[k],
                          j, nbnums.max_expand)) {
 
-            strcpy(targs_cpy[targ_cpy_idx][0], sources[k]);
-            targ_size_copy[targ_cpy_idx] = targ_sizes[i] + 1 - dest_sizes[k];
-            for (int l = 1; l < targ_size_copy[targ_cpy_idx]; l++) {
-              strcpy(targs_cpy[targ_cpy_idx][l],
-                     targs[i][dest_sizes[k] + l - 1]);
+            /* printf("Replacing: "); */
+            /* for (int a = 0; a < dest_sizes[k]; a++) */
+            /*   printf("%s ", dests[k][a]); */
+            /* printf("\nWith: %s\n", sources[k]); */
+
+            int new_size = targ_sizes[i] + 1 - dest_sizes[k];
+            strcpy(tmp[0], sources[k]);
+
+            if ((new_size == 1) && (tmp[0][0] == 'e')) {
+              printf("Number generations: %d\n", gens);
+              return;
             }
 
-            targ_cpy_idx++;
+            /* printf("Here with new size %d\n", new_size); */
+            for (int l = 1; l < new_size; l++)
+              strcpy(tmp[l], targs[i][dest_sizes[k] + l - 1]);
+
+            bool is_dup = false;
+            for (int l = 0; l < targ_cpy_idx; l++) {
+              is_dup = true;
+              for (int m = 0; m < new_size; m++)
+                if (strcmp(targs_cpy[l][m], tmp[m]) != 0) {
+                  is_dup = false;
+                  break;
+                }
+              if (is_dup)
+                break;
+            }
+
+            if (!is_dup) {
+              memcpy(targs_cpy[targ_cpy_idx], tmp, sizeof(tmp));
+              targ_size_copy[targ_cpy_idx] = new_size;
+              targ_cpy_idx++;
+            }
+
+            memset(tmp, '\0', sizeof(tmp));
           }
         }
       }
