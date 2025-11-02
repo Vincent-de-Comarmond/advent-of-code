@@ -158,7 +158,7 @@ void solve(char *filename) {
     for (int i = 0; i < targ_idx; i++) {
       /* for (int j = 0; j < targ_sizes[i]; j++) */
       /*   printf("%s ", targs[i][j]); */
-      printf("\nNum candidates: %d\n", targ_idx);
+      printf("\nGeneration %d/%d\nNum candidates: %d\n", i, max_gen, targ_idx);
       printf("\nsize %d\n", targ_sizes[i]);
 
       for (int j = 0; j < nbnums.max_expand; j++) {
@@ -173,6 +173,13 @@ void solve(char *filename) {
 
             int new_size = targ_sizes[i] + 1 - dest_sizes[k];
             strcpy(tmp[0], sources[k]);
+            if (new_size < 10) {
+              printf("Conversion: ");
+              for (int l = 0; l < dest_sizes[k]; l++) {
+                printf(" %s", dests[k][l]);
+              }
+              printf("\n -> %s\n", sources[k]);
+            }
 
             if ((new_size == 1) && (tmp[0][0] == 'e')) {
               printf("Number generations: %d\n", gens);
@@ -198,6 +205,13 @@ void solve(char *filename) {
             if (!is_dup) {
               memcpy(targs_cpy[targ_cpy_idx], tmp, sizeof(tmp));
               targ_size_copy[targ_cpy_idx] = new_size;
+              if (new_size < 10) {
+                printf("Candidate %d\n", i);
+                for (int l = 0; l < new_size; l++)
+                  printf("%s ", targs_cpy[targ_cpy_idx][l]);
+                printf("\n");
+              }
+
               targ_cpy_idx++;
             }
 
