@@ -48,93 +48,99 @@ void parse_input(char *filename) {
   fclose(file);
 }
 
-int limited_search_replace(char target[WIDTH], char *search, char *replace,
-                           int start, int limit) {
-  int targlen = strlen(target);
-  int searchlen = strlen(search);
-  int repllen = strlen(replace);
+char *limited_search_replace(char target[WIDTH], char *search, char *replace,
+                             int start, int limit) {
 
-  char copy[WIDTH];
-  strcpy(copy, target);
-  int end = limit < targlen ? limit - searchlen : targlen - searchlen;
+  char *replaced = malloc(WIDTH * sizeof(char));
+  memset(replaced, '\0', WIDTH * sizeof(char));
 
-  int i = 0;
-  for (i = start; i < end; i++) {
+  int i, j, rlen = strlen(replace), slen = strlen(search);
+  for (i = start; i < limit; i++) {
     bool match = true;
-    for (int j = 0; j < searchlen; j++) {
+    for (int j = 0; j < slen; j++) {
       if (search[j] != target[i + j]) {
         match = false;
         break;
       }
     }
 
-    if (!match)
-      continue;
+    if (match) {
+      for (j = 0; j < i; j++)
+        replaced[j] = target[j];
+      for (j = 0; j < rlen; j++)
+        replaced[i + j] = replace[j];
+      for (j = i + rlen; j < WIDTH; j++)
+        replaced[j] = target[j + slen - rlen];
 
-    for (int j = 0; j < repllen; j++)
-      target[i + j] = replace[j];
-
-    for (int j = i + repllen; j < targlen + repllen - searchlen; j++)
-      target[j] = target[j + repllen - searchlen];
-
-    printf("%s\n", copy);
-    printf("%s\n", target);
+      /* for (j = 0; j < WIDTH; j++) {
+        if (j < i)
+          replaced[j] = target[j];
+        else if ((i <= j) && (j < i + rlen))
+          replaced[j] = replace[j - i];
+        else
+          replaced[j] = target[j + slen];
+      } */
+      break;
+    }
   }
 
-  // IDEA is stupid-simple ... if returned index is limit nothing has been
-  // replaced AND nothing can be replace. If index is less than final we have to
-  // try all replacements on the next character from the index
-  return i + searchlen;
+  if (0 < strlen(replaced)) {
+    if (strlen(target) < 90) {
+      printf("%lu -> %lu\n", strlen(target), strlen(replaced));
+      printf("search-replace: %s -> %s\n", search, replace);
+      printf("Input len: %lu\n", strlen(target));
+      printf("%s -> %s\n", target, replaced);
+    }
+  }
+
+  return replaced;
 }
 
 void solve(char *filename) {
   parse_input(filename);
 
-  int idx = 0, idx_cpy = 0, gen = 0;
-  char tmp[WIDTH];
-  char(*targets)[WIDTH] = malloc(sizeof(char[(int)1e3][WIDTH]));
-  memset(targets, '\0', sizeof(char[(int)1e3][WIDTH]));
+  int i, j, k, idx = 0, idx_cpy = 0, gen = 0;
+  bool duplicate = false;
 
-  char(*targcpy)[WIDTH] = malloc(sizeof(char[(int)1e3][WIDTH]));
-  memset(targcpy, '\0', sizeof(char[(int)1e3][WIDTH]));
+  int GEN_SIZE = (int)1e6;
 
+  char(*targets)[WIDTH] = malloc(sizeof(char[GEN_SIZE][WIDTH]));
+  memset(targets, '\0', sizeof(char[GEN_SIZE][WIDTH]));
   strcpy(targets[idx], TARGET);
   idx++;
 
+  char(*targcpy)[WIDTH] = malloc(sizeof(char[GEN_SIZE][WIDTH]));
+  memset(targcpy, '\0', sizeof(char[GEN_SIZE][WIDTH]));
+
   while (gen < (int)1e6) {
-    for (int i = 0; i < idx; i++) {
-      for (int j = 0; j < NUM_TRANS; j++) {
+    printf("Generation: %d; Population size: %d\n", gen, idx);
+    for (i = 0; i < idx; i++) {
+      for (j = 0; j < NUM_TRANS; j++) {
         char *source = SOURCES[j];
         char *dest = DESTINATIONS[j];
-        int start_idx = 0;
 
-        while (start_idx < MAX_DEST) {
-          memset(tmp, '\0', sizeof(tmp));
-          strcpy(tmp, targets[i]);
-
-          start_idx = limited_search_replace(tmp, dest, source, start_idx + 1,
-                                             MAX_DEST);
-
-          if (-1 < start_idx && start_idx < MAX_DEST) {
-            printf("Start idx: %d\n", start_idx);
-            printf("Tried to replace %s -> %s\n", dest, source);
-            printf("Input: %s\n", targets[i]);
-            printf("Output: %s\n", tmp);
-
-            strcpy(targcpy[idx_cpy], tmp);
+        for (k = 0; k < MAX_DEST + 5; k++) {
+          char *replacement;
+          replacement =
+              limited_search_replace(targets[i], dest, source, k, MAX_DEST);
+          if (0 < strlen(replacement)) {
+            strcpy(targcpy[idx_cpy], replacement);
             idx_cpy++;
+            if (strlen(replacement) < 100)
+              printf("Placing %s as new target\n", replacement);
           }
+          free(replacement);
         }
       }
     }
 
     idx = 0;
-    memset(targets, '\0', sizeof(char[(int)1e3][WIDTH]));
+    memset(targets, '\0', sizeof(char[GEN_SIZE][WIDTH]));
 
-    for (int i = 0; i < idx_cpy; i++) {
-      bool duplicate = false;
+    for (i = 0; i < idx_cpy; i++) {
+      duplicate = false;
 
-      for (int j = 0; j < idx; j++) {
+      for (j = 0; j < idx; j++) {
         if (strcmp(targets[j], targcpy[i]) == 0) {
           duplicate = true;
           break;
@@ -148,7 +154,8 @@ void solve(char *filename) {
     }
 
     idx_cpy = 0;
-    memset(targcpy, '\0', sizeof(char[(int)1e3][WIDTH]));
+    memset(targcpy, '\0', sizeof(char[GEN_SIZE][WIDTH]));
+    gen++;
   }
 }
 
