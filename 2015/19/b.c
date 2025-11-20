@@ -9,6 +9,7 @@
 #define WIDTH 550
 #define MAX_DEST 10
 
+int MIN_SO_FAR = (int)1e6;
 int NUM_TRANS = 0;
 char TARGET[WIDTH] = {[0 ... WIDTH - 1] = '\0'};
 char SOURCES[_NT][3] = {[0 ... _NT - 1] = {'\0', '\0', '\0'}};
@@ -71,25 +72,7 @@ char *limited_search_replace(char target[WIDTH], char *search, char *replace,
         replaced[i + j] = replace[j];
       for (j = i + rlen; j < WIDTH; j++)
         replaced[j] = target[j + slen - rlen];
-
-      /* for (j = 0; j < WIDTH; j++) {
-        if (j < i)
-          replaced[j] = target[j];
-        else if ((i <= j) && (j < i + rlen))
-          replaced[j] = replace[j - i];
-        else
-          replaced[j] = target[j + slen];
-      } */
       break;
-    }
-  }
-
-  if (0 < strlen(replaced)) {
-    if (strlen(target) < 90) {
-      printf("%lu -> %lu\n", strlen(target), strlen(replaced));
-      printf("search-replace: %s -> %s\n", search, replace);
-      printf("Input len: %lu\n", strlen(target));
-      printf("%s -> %s\n", target, replaced);
     }
   }
 
@@ -113,21 +96,22 @@ void solve(char *filename) {
   memset(targcpy, '\0', sizeof(char[GEN_SIZE][WIDTH]));
 
   while (gen < (int)1e6) {
-    printf("Generation: %d; Population size: %d\n", gen, idx);
     for (i = 0; i < idx; i++) {
       for (j = 0; j < NUM_TRANS; j++) {
         char *source = SOURCES[j];
         char *dest = DESTINATIONS[j];
 
-        for (k = 0; k < MAX_DEST + 5; k++) {
+        for (k = 0; k < 2 * MAX_DEST; k++) {
           char *replacement;
           replacement =
-              limited_search_replace(targets[i], dest, source, k, MAX_DEST);
+              limited_search_replace(targets[i], dest, source, k, 2 * MAX_DEST);
           if (0 < strlen(replacement)) {
             strcpy(targcpy[idx_cpy], replacement);
             idx_cpy++;
-            if (strlen(replacement) < 100)
-              printf("Placing %s as new target\n", replacement);
+            if (strlen(replacement) == 1) {
+              printf("Generations: %d\n", gen + 1);
+              return;
+            }
           }
           free(replacement);
         }
@@ -168,3 +152,7 @@ int main(int argc, char *argv[argc]) {
 
   printf("Execution time: %f\n", (double)(end - start) / CLOCKS_PER_SEC);
 }
+
+// 206 is too low
+// 207 is the correct answer
+// Execution time: 934.684603
