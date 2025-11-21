@@ -43,9 +43,9 @@ char *unhash(int hashed) {
 #+end_src
 
 #+RESULTS:
-| abcd  |
-| 72385 |
-| abcd  |
+| zz  |
+| 702 |
+| zz  |
 
 
 #+begin_src C
@@ -59,6 +59,9 @@ int main() {
     return 0;
 }
 #+end_src
+
+#+RESULTS:
+: Character digit: 7
 
 #+begin_src C
   #include <stdio.h>
@@ -107,9 +110,6 @@ int main() {
   }
   printf("%ld\n", pow100(2));
 #+end_src
-
-#+RESULTS:
-: 10000
 
 
 

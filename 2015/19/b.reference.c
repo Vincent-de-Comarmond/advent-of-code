@@ -56,7 +56,6 @@ char *limited_search_replace(char target[WIDTH], char *search, char *replace,
   memset(replaced, '\0', WIDTH * sizeof(char));
 
   int i, j, rlen = strlen(replace), slen = strlen(search);
-
   for (i = start; i < limit; i++) {
     bool match = true;
     for (int j = 0; j < slen; j++) {
@@ -97,19 +96,15 @@ void solve(char *filename) {
   memset(targcpy, '\0', sizeof(char[GEN_SIZE][WIDTH]));
 
   while (gen < (int)1e6) {
-    printf("Generations: %d, population: %d\n", gen, idx);
-    if (idx <= 0)
-      return;
-
     for (i = 0; i < idx; i++) {
       for (j = 0; j < NUM_TRANS; j++) {
         char *source = SOURCES[j];
         char *dest = DESTINATIONS[j];
 
-        for (k = 0; k < 3 * MAX_DEST / 2; k++) {
+        for (k = 0; k < 2 * MAX_DEST; k++) {
           char *replacement;
-          replacement = limited_search_replace(targets[i], dest, source, k,
-                                               3 * MAX_DEST / 2);
+          replacement =
+              limited_search_replace(targets[i], dest, source, k, 2 * MAX_DEST);
           if (0 < strlen(replacement)) {
             strcpy(targcpy[idx_cpy], replacement);
             idx_cpy++;
