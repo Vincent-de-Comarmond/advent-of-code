@@ -117,8 +117,8 @@ day20:
 	@$(MKDIR)
 	@$(CC) 20/a.c $(CFLAGS) $(LDFLAGS) -o bin/20a$(EXE_EXT)
 	@$(RUNPFX)bin/20a$(EXE_EXT) 33100000
-	# @$(CC) 18/b.c $(CFLAGS) -o bin/18b$(EXE_EXT)
-	# @$(RUNPFX)bin/18b$(EXE_EXT) 100 100 18/input.txt
+	@$(CC) 20/b.c $(CFLAGS) $(LDFLAGS) -o bin/20b$(EXE_EXT)
+	@$(RUNPFX)bin/20b$(EXE_EXT) 33100000
 	@echo
 # -------------- Utilities --------------
 
