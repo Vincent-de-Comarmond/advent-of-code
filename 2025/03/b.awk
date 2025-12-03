@@ -1,16 +1,16 @@
 BEGIN {
-	total_joltage = 0
+    total_joltage = 0
 }
 
 {
     subtotal = -1
     _length = length($0)
     choose_optimal(1, 1, "")
-	total_joltage += subtotal
+    total_joltage += subtotal
 }
 
 END {
-	print "Max Joltage:", total_joltage
+    print "Max Joltage:", total_joltage
 }
 
 function choose_optimal(level, start, accumulator,
