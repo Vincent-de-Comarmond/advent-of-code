@@ -9,7 +9,7 @@ BEGIN {
 }
 
 /^\s*$/ {
-	sort_and_consolidate()
+	sort_and_count()
 	exit 0
 }
 
@@ -25,7 +25,7 @@ function custom_sort(i1, v1, i2, v2)
 	return 1
 }
 
-function sort_and_consolidate(no_fresh_possible, n, tmp, i, a, b)
+function sort_and_count(no_fresh_possible, n, tmp, i, a, b)
 {
 	no_fresh_possible = 0
 	n = asort(range, tmp, "custom_sort")
