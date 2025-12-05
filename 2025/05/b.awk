@@ -37,15 +37,13 @@ function sort_and_consolidate(consolidated, no_fresh_possible, n, tmp, i, idx, a
 		if (tmp[i][1] <= b) {
 			b = b < tmp[i][2] ? tmp[i][2] : b
 		} else {
-			idx++
-			consolidated[idx][1] = a
+			consolidated[++idx][1] = a
 			consolidated[idx][2] = b
 			a = tmp[i][1]
 			b = tmp[i][2]
 		}
 	}
-	idx++
-	consolidated[idx][1] = a
+	consolidated[++idx][1] = a
 	consolidated[idx][2] = b
 	for (i = 1; i <= idx; i++) {
 		diff = 1 + consolidated[i][2] - consolidated[i][1]
@@ -53,5 +51,4 @@ function sort_and_consolidate(consolidated, no_fresh_possible, n, tmp, i, idx, a
 	}
 	print "Possible fresh ingredients:", no_fresh_possible
 }
-
 # 359526404143208 is the right answer for part 2
