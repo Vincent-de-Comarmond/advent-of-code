@@ -1,37 +1,26 @@
 BEGIN {
 	FS = ""
-	split("", buffer, "")
+	prev = 0
+	curr = 1
 }
 
 NR == 1 {
-	par = (NR % 2)
-	for (i = 1; i <= NF; i++) {
-		buffer[par][i] = 0
-	}
-	buffer[par][index($0, "S")] = 1
+	buffer[curr][index($0, "S")] = 1
 }
 
-1 < NR {
-	ppar = (NR - 1) % 2
-	par = NR % 2
+/\^/ {
+	prev = curr
+	curr = ! curr
 	for (i = 1; i <= NF; i++) {
-		buffer[par][i] = 0
+		buffer[curr][i] = 0
 	}
 	for (i = 1; i <= NF; i++) {
-		if ($i != "^") {
-			if (buffer[ppar][i]) {
-				buffer[par][i] += buffer[ppar][i]
-			}
-			continue
-		}
-		if (0 < buffer[ppar][i]) {
-			buffer[par][i] = 0
-			if (1 < i) {
-				buffer[par][i - 1] += buffer[ppar][i]
-			}
-			if (i < NF) {
-				buffer[par][i + 1] += buffer[ppar][i]
-			}
+		if ($i == "^") {
+			buffer[curr][i] = 0
+			buffer[curr][i - 1] += buffer[prev][i]
+			buffer[curr][i + 1] += buffer[prev][i]
+		} else {
+			buffer[curr][i] += buffer[prev][i]
 		}
 	}
 }
@@ -39,9 +28,9 @@ NR == 1 {
 END {
 	paths = 0
 	for (i = 1; i <= NF; i++) {
-		paths += buffer[par][i]
+		paths += buffer[curr][i]
 	}
 	print "Number paths:", paths
+	# 231507396180012 is the right answer for part 2
 }
 
-# 231507396180012 is the right answer for part 2
