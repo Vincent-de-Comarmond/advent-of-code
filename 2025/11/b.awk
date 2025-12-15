@@ -19,11 +19,6 @@ END {
 	split("", empty, FS)
 	populate_parents("dac", dac_parents)
 	populate_parents("fft", fft_parents)
-	# print "fft is parent:", "fft" in dac_parents
-	# print "dac is parent:", "dac" in fft_parents
-	if ("fft" in dac_parents && "dac" in fft_parents) {
-		exit (1)
-	}
 	if ("fft" in dac_parents) {
 		svr2fft = solve("svr", "fft", fft_parents)
 		fft2dac = solve("fft", "dac", dac_parents)

@@ -1,126 +1,120 @@
 BEGIN {
 	FS = ","
 	split("", red, "")
-	split("", green_h, "")
-	split("", green_v, "")
+	split("", horz, "")
+	split("", vert, "")
 }
 
 {
 	red[NR][1] = $1
 	red[NR][2] = $2
-	if (1 < NR) {
-		add_green(NR - 1, NR)
-	}
+}
+
+1 < NR {
+	add_border(red, NR, NR - 1)
 }
 
 END {
-	add_green(NR, 1)
-	idx = 0
-	maxsize = 0
-	iters = NR * (NR - 1) / 2
-	split("", done, "")
+	add_border(red, 1, NR)
+	split("", areas, "")
 	for (i = 1; i <= NR; i++) {
 		for (j = 1; j < i; j++) {
-			idx++
-			if (idx % 100 == 0) {
-				printf "%.2f %\n", 100 * idx / iters
-			}
-			if ((i, j) in done || (j, i) in done) {
-				continue
-			}
-			done[i, j] = 1
-			x1 = red[i][1]
-			y1 = red[i][2]
-			x2 = red[j][1]
-			y2 = red[j][2]
-			dx = (x1 < x2) ? x2 - x1 : x1 - x2
-			dy = (y1 < y2) ? y2 - y1 : y1 - y2
-			size = (dx + 1) * (dy + 1)
-			if (size < maxsize) {
-				continue
-			}
-			# print size
-			if (invalid(x1, y1, x2, y2) == 1) {
-				continue
-			}
-			maxsize = size
-			mx1 = x1
-			my1 = y1
-			mx2 = x2
-			my2 = y2
+			areas[i, j] = area(red[i][1], red[i][2], red[j][1], red[j][2])
 		}
 	}
-	print "Max size:", maxsize
-	printf "%d, %d -> %d, %d\n", mx1, my1, mx2, my2
+	split("", sorted_areas, "")
+	n = asorti(areas, sorted_areas, "@val_num_desc")
+	for (k = 1; k <= n; k++) {
+		split(sorted_areas[k], a, SUBSEP)
+		i = a[1]
+		j = a[2]
+		if (is_valid(red, i, j)) {
+            print red[i][1], red[i][2], red[j][1], red[j][2]
+			print "Max area:", areas[i, j]
+			exit (0)
+		}
+	}
+	# 4406010323 is too big for part 2
+	# 1474699155 is the right answer for part 2
 }
 
 
-function add_green(prev_idx, curr_idx, px, py, x, y, dx, dy, i, b, e)
+function abs(x)
 {
-	px = red[prev_idx][1]
-	py = red[prev_idx][2]
-	x = red[curr_idx][1]
-	y = red[curr_idx][2]
-	dx = x - px
-	dy = y - py
-	if (dx == 0) {
-		b = py < y ? py : y
-		e = py < y ? y : py
-		for (i = b + 1; i < e; i++) {
-			# green_v[i][x] = 1
-			green_v[x, y] = 1
-		}
+	return (0 <= x ? x : -x)
+}
+
+function add_border(reds, idx1, idx2, idx)
+{
+	if (reds[idx1][1] == reds[idx2][1]) {
+		# Vertical line - 1 x value
+		idx = length(vert) + 1
+		vert[idx][0] = reds[idx1][1]
+		vert[idx][1] = min(reds[idx1][2], reds[idx2][2])
+		vert[idx][2] = max(reds[idx1][2], reds[idx2][2])
 	} else {
-		b = px < x ? px : x
-		e = px < x ? x : px
-		for (i = b + 1; i < e; i++) {
-			green_h[i][y] = 1
-		}
+		# Horizontal line -  1 y value
+		idx = length(horz) + 1
+		horz[idx][0] = reds[idx1][2]
+		horz[idx][1] = min(reds[idx1][1], reds[idx2][1])
+		horz[idx][2] = max(reds[idx1][1], reds[idx2][1])
 	}
 }
 
-function invalid(x1, y1, x2, y2, x, y, xmin, xmax, ymin, ymax)
+function area(x0, y0, x1, y1)
 {
-	xmin = x1 < x2 ? x1 : x2
-	xmax = x1 < x2 ? x2 : x1
-	ymin = y1 < y2 ? y1 : y2
-	ymax = y1 < y2 ? y2 : y1
-	for (y = ymin; y <= ymax; y++) {
-		for (x = xmin + 1; x < xmax; x++) {
-			if ((x, y) in green_v) {
-				return 1
+	return (abs(x1 - x0) + 1) * (abs(y1 - y0) + 1)
+}
+
+function is_valid(reds, idx1, idx2, x0, y0, x1, y1, idx)
+{
+	x0 = min(reds[idx1][1], reds[idx2][1])
+	x1 = max(reds[idx1][1], reds[idx2][1])
+	y0 = min(reds[idx1][2], reds[idx2][2])
+	y1 = max(reds[idx1][2], reds[idx2][2])
+	# Vertical border crossing rectange
+	for (idx in vert) {
+		if (x0 + 0 < vert[idx][0] && vert[idx][0] < x1 + 0) {
+			# Cuts y0
+			if (vert[idx][1] < y0 + 0 && y0 + 0 < vert[idx][2]) {
+				return 0
+			}
+			# Cuts y1
+			if (vert[idx][1] < y1 + 0 && y1 + 0 < vert[idx][2]) {
+				return 0
+			}
+			# Inside the rectange
+			if (y0 + 0 <= vert[idx][1] && vert[idx][2] <= y1 + 0) {
+				return 0
 			}
 		}
 	}
-	# if (y1 in green_v) {
-	# 	for (x in green_v[y1]) {
-	# 		if (min < x && x < max) {
-	# 			return 1
-	# 		}
-	# 	}
-	# }
-	# if (y2 in green_v) {
-	# 	for (x in green_v[y2]) {
-	# 		if (min < x && x < max) {
-	# 			return 1
-	# 		}
-	# 	}
-	# }
-	# min = y1 < y2 ? y1 : y2
-	# max = y1 < y2 ? y2 : y1
-	# if (x1 in green_h) {
-	# 	for (y in green_h[x1]) {
-	# 		if (min < y && y < max) {
-	# 			return 1
-	# 		}
-	# 	}
-	# }
-	# if (x2 in green_h) {
-	# 	for (y in green_h[x2]) {
-	# 		if (min < y && y < max) {
-	# 			return 1
-	# 		}
-	# 	}
-	# }
-	return 0
+	# Horizontal border crossing rectange
+	for (idx in horz) {
+		if (y0 + 0 < horz[idx][0] && horz[idx][0] < y1 + 0) {
+			# Cuts x0
+			if (horz[idx][1] < x0 + 0 && x0 + 0 < horz[idx][2]) {
+				return 0
+			}
+			# Cuts x1
+			if (horz[idx][1] < x1 + 0 && x1 + 0 < horz[idx][2]) {
+				return 0
+			}
+			# Inside the rectange
+			if (x0 + 0 <= horz[idx][1] && horz[idx][2] <= x1 + 0) {
+				return 0
+			}
+		}
+	}
+	return 1
+}
+
+function max(a, b)
+{
+	return (a + 0 <= b + 0 ? b + 0 : a + 0)
+}
+
+function min(a, b)
+{
+	return (a + 0 <= b + 0 ? a : b)
 }
