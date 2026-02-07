@@ -1,46 +1,21 @@
-BEGIN {
-	FS = ""
-	split("", shapes, FS)
-	row_idx = 1
-	pres_idx = 1
-}
-
-/#|\./ {
-	if (9 < row_idx) {
-		pres_idx++
-		row_idx = 1
-	}
-	shapes[pres_idx][row_idx++] = $1 == "#" ? 1 : 0
-	shapes[pres_idx][row_idx++] = $2 == "#" ? 1 : 0
-	shapes[pres_idx][row_idx++] = $3 == "#" ? 1 : 0
-}
-
 /x/ {
 	gsub(/:/, "", $0)
 	gsub(/x/, " ", $0)
 	split($0, a, " ")
-	#
-	wid = a[1]
-	len = a[2]
+	x = a[1]
+	y = a[2]
 	split("", desired, FS)
+	num_desired = 0
 	for (i = 3; i <= length(a); i++) {
-		desired[i - 2] = a[i]
+		num_desired += a[i]
+	}
+	if (num_desired <= int(x / 3) * int(y / 3)) {
+		total += 1
 	}
 }
 
 END {
-	for (i = 1; i <= length(shapes); i++) {
-		for (j = 0; j < 3; j++) {
-			print shapes[i][3 * j + 1], shapes[i][3 * j + 2], shapes[i][3 * j + 3]
-		}
-		print ""
-	}
+	printf "Total packable: %d\n", total
 }
 
-function solve_one(width, _length, desired){
-    
-    
-
-    
-    
-}
+# 403 is the correct answer
