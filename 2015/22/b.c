@@ -75,6 +75,12 @@ int turn(int num_current_states, int current_states[][STATE_VEC_LENGTH],
                         [POISON_TURNS] = current_states[i][POISON_TURNS],
                         [RECHARGE_TURNS] = current_states[i][RECHARGE_TURNS]};
 
+    if (state_copy[PLAYER_TURN] == 0) {
+      if (state_copy[PLAYER_HP] < 2)
+        continue;
+      state_copy[PLAYER_HP]--;
+    }
+
     /*
     for (int j = 0; j < STATE_VEC_LENGTH; j++) {
       printf("current_states[%d][%d]: %d\n", i, j, current_states[i][j]);
@@ -112,7 +118,7 @@ int turn(int num_current_states, int current_states[][STATE_VEC_LENGTH],
       num_next++;
     } else {
       // printf("PLAYERS TURN\n");
-      // printf("AVAILABLE MANA: %d\n", state_copy[PLAYER_MANA]);
+
       int mana = state_copy[PLAYER_MANA];
 
       if (actions[MMISSILE][COST] <= mana) {
@@ -233,5 +239,6 @@ int main(int argc, char *argv[]) {
   return EXIT_SUCCESS;
 }
 
-// 611 is incorrect - the answer is too low
-// 953 is the right answer for part 1 - execution time is 0.103 seconds
+// 1020 is too low
+// 1289 is the correct answer for day 22
+// Execution time is 0.102 seconds
