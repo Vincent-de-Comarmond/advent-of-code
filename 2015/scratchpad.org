@@ -120,3 +120,76 @@ int main() {
 
 #+RESULTS:
 |   | World! |
+
+
+
+#+begin_src C
+
+  static int num=0;
+  static int mask[10] = {[0 ... 9] = -1};
+  static int numbers[] = {1, 2, 3, 4, 5, 7, 8, 9, 10, 11};
+  static int targ = 20;
+
+
+  void populate(int current, int options[10], int idx1, int used[10], int idx2){
+    int j, breakout;
+    // printf("Note: %d\n", current);
+    for (int i=idx1; i < 10; i++){
+      breakout=0;
+      for (j=0; j < idx2; j++){
+        // printf("j: %d\n", j);
+        if (used[j] == i){
+  	breakout=1;
+  	break;
+        }
+      }
+      if (breakout == 1)
+        break;
+
+      if (options[i] <= current){
+  	  used[j]=i;
+  	  return populate(current - options[i], options, i+1, used, j+1);
+      }
+    }
+  }
+
+  populate(20, numbers, 0, mask, 0);
+
+  for (int i=0; i < 10; i++){
+    printf("%d -> %d\n", mask[i], numbers[mask[i]]);
+  }
+
+
+#+end_src
+
+#+RESULTS:
+|  0 | -> | 1 |
+|  1 | -> | 2 |
+|  2 | -> | 3 |
+|  3 | -> | 4 |
+|  4 | -> | 5 |
+| -1 | -> | 0 |
+| -1 | -> | 0 |
+| -1 | -> | 0 |
+| -1 | -> | 0 |
+| -1 | -> | 0 |
+
+
+#+begin_src python :results value :session
+sum([1, 2, 3, 4, 5, 7, 8, 9, 10, 11])
+#+end_src
+
+#+RESULTS:
+: 60
+ 
+
+
+----------------------
+
+
+#+begin_src python
+  
+
+
+
+#+end_src

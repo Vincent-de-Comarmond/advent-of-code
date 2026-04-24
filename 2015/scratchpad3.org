@@ -1,0 +1,86 @@
+#+begin_src C :results output
+  #include <math.h>
+  #include <stdio.h>
+  #include <stdlib.h>
+
+  #define  num_slots 10
+  static int numbers[] = {1, 2, 3, 4, 5, 7, 8, 9, 10, 11};
+
+  int sum_array(int num_opts, int numbers[num_opts]){
+    int total=0;
+    for (int i=0; i < num_opts; i++)
+      total+=numbers[i];
+    return total;
+  }
+
+  int int_sqrt(int input){
+    int power=0, copy = input;
+    while (1 < copy){
+      copy >>= 1;
+      power++;
+    }
+    return power;
+  }
+
+  int make_subgroups(int inputs[num_slots], int (*outputs)[3]){
+    
+    int i, j, k, combos = (int)powl(2, num_slots);
+    // int *options = malloc(combos*sizeof(int));
+    int options[combos];
+
+    int num_sums_to_targ=0;
+    int sums_to_targ[combos];
+    int target = sum_array(num_slots, inputs) / 3;
+
+    
+    for (i=0; i < combos; i++)
+      options[i] = 0;
+    
+    for (i=0; i < num_slots; i++)
+      options[1 << i] = inputs[i];
+    for (i=0; i < combos; i++)
+      sums_to_targ[i] = 0;
+
+    for (i=0; i < combos; i++){
+      int lead = 1 << int_sqrt(i);
+      int rest =  ~lead;
+      options[i] = options[i & lead] + options[i & rest];
+
+      if (options[i] == target)
+        sums_to_targ[num_sums_to_targ++] = i;
+    }
+
+    int num_valid_groups=0;
+    for (i=0; i < num_sums_to_targ; i++){
+        for (j=i+1; j < num_sums_to_targ; j++){
+            if ((i & j) != 0)
+                continue;
+            for (k=j+1;k < num_sums_to_targ; k++){
+                if (((i & k) == 0) && ((j & k) == 0)){
+                    outputs[num_valid_groups][0] = i;
+                    outputs[num_valid_groups][1] = j;
+                    outputs[num_valid_groups][2] = k;
+                    num_valid_groups++;
+                }
+            }
+        }
+    }
+
+    printf("Sum array: %d\n", sum_array(num_slots, inputs));
+    printf("Target: %d\n", target);
+    printf("Numbers summing to target: %d\n", num_sums_to_targ);
+
+    return num_valid_groups;
+  }
+
+    /* printf("%d\n", int_sqrt(1)); */
+  // int (*valid_groups)[3] = malloc(1000*sizeof(int));
+  int valid_groups[10000][3];
+  int num_groups = make_subgroups(numbers, valid_groups);
+
+  for (int i=0; i < num_groups; i++)
+      printf("%d, %d, %d\n", valid_groups[i][0], valid_groups[i][1], valid_groups[i][2]);
+
+#+end_src
+
+#+RESULTS:
