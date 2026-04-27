@@ -28,7 +28,7 @@ ifeq ($(UNAME_S),Linux)
 endif
 
 # Days to build (no 'seq' on Windows)
-DAYS := 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+DAYS := 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
 
 # Default target: build all days (pattern rule handles most)
 .PHONY: all clean debug release
